@@ -35,9 +35,9 @@
             // 
             listBox1.FormattingEnabled = true;
             listBox1.ItemHeight = 15;
-            listBox1.Location = new Point(-1, -3);
+            listBox1.Location = new Point(0, 0);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(234, 439);
+            listBox1.Size = new Size(233, 409);
             listBox1.TabIndex = 0;
             listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
             listBox1.DoubleClick += listBox1_DoubleClick;
@@ -48,10 +48,11 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(232, 411);
             Controls.Add(listBox1);
-            FormBorderStyle = FormBorderStyle.None;
+            FormBorderStyle = FormBorderStyle.Fixed3D;
             Name = "ListaProductos";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "ListaProductos";
+            Text = "Lista";
+            Load += ListaProductos_Load;
             ResumeLayout(false);
         }
 

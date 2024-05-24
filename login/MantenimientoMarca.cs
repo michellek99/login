@@ -81,7 +81,7 @@ namespace login
         {
             if (!ValidarTextBoxes())
             {
-                return; 
+                return;
             }
 
             string codigoMarca = textCodigo.Text;
@@ -332,6 +332,32 @@ namespace login
                 }
             }
             return true;
+        }
+
+        private void textCodigo_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Tab)
+            {
+                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
+                ListaProductos listaProductosForm = new ListaProductos("MARCA", "COD_MARCA", "NOMBRE");
+
+                // Suscribirse al evento ProductoSeleccionado
+                listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Mostrar el formulario ListaProductos
+                listaProductosForm.Show();
+            }
+        }
+
+        private void ListaProductosForm_ProductoSeleccionado(string codigo)
+        {
+            // Establecer el valor del textCodigo con el código del producto seleccionado
+            SetTextCodigo(codigo);
+        }
+
+        public void SetTextCodigo(string codigo)
+        {
+            textCodigo.Text = codigo;
         }
     }
 }

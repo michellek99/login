@@ -144,6 +144,7 @@
             textCodigo.Size = new Size(395, 23);
             textCodigo.TabIndex = 55;
             textCodigo.KeyPress += textCodigo_KeyPress;
+            textCodigo.PreviewKeyDown += textCodigo_PreviewKeyDown;
             // 
             // labelTitulo
             // 

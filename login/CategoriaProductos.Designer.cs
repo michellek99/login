@@ -146,6 +146,7 @@
             textCategoria.Size = new Size(395, 23);
             textCategoria.TabIndex = 26;
             textCategoria.KeyPress += textCategoria_KeyPress;
+            textCategoria.PreviewKeyDown += textCategoria_PreviewKeyDown;
             // 
             // label3
             // 

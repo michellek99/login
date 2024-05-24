@@ -73,6 +73,7 @@
             EMP_CODIGO.TabIndex = 1;
             EMP_CODIGO.TextChanged += Numeros_TextChanged;
             EMP_CODIGO.KeyPress += Numeros_KeyPress;
+            EMP_CODIGO.PreviewKeyDown += EMP_CODIGO_PreviewKeyDown;
             // 
             // label2
             // 

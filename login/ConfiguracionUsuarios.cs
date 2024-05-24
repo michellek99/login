@@ -396,5 +396,31 @@ namespace login
                 Contrasena.UseSystemPasswordChar = !checkBoxMostrarContraseña.Checked;
             }
         }
+
+        private void EMP_CODIGO_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Tab)
+            {
+                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
+                ListaProductos listaProductosForm = new ListaProductos("USUARIOS", "EMP_CODIGO", "NOMBRES");
+
+                // Suscribirse al evento ProductoSeleccionado
+                listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Mostrar el formulario ListaProductos
+                listaProductosForm.Show();
+            }
+        }
+
+        private void ListaProductosForm_ProductoSeleccionado(string codigo)
+        {
+            // Establecer el valor del textCodigo con el código del producto seleccionado
+            SetTextCodigo(codigo);
+        }
+
+        public void SetTextCodigo(string codigo)
+        {
+            EMP_CODIGO.Text = codigo;
+        }
     }
 }

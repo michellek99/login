@@ -88,6 +88,7 @@
             textCodigo.TabIndex = 3;
             textCodigo.TextChanged += textCodigo_TextChanged;
             textCodigo.KeyPress += Numeros_KeyPress;
+            textCodigo.PreviewKeyDown += textCodigo_PreviewKeyDown;
             // 
             // label4
             // 
