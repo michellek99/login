@@ -98,12 +98,13 @@
             // textUsuario
             // 
             textUsuario.Location = new Point(624, 60);
-            textUsuario.MaxLength = 10;
+            textUsuario.MaxLength = 15;
             textUsuario.Name = "textUsuario";
             textUsuario.ShortcutsEnabled = false;
             textUsuario.Size = new Size(121, 23);
             textUsuario.TabIndex = 111;
             textUsuario.KeyPress += textUsuario_KeyPress;
+            textUsuario.PreviewKeyDown += textUsuario_PreviewKeyDown;
             // 
             // textSubTotal
             // 
@@ -172,7 +173,7 @@
             // 
             textTotal.Enabled = false;
             textTotal.Location = new Point(723, 391);
-            textTotal.MaxLength = 50;
+            textTotal.MaxLength = 25;
             textTotal.Name = "textTotal";
             textTotal.ShortcutsEnabled = false;
             textTotal.Size = new Size(81, 23);
@@ -193,7 +194,7 @@
             // 
             textCantidad2.Enabled = false;
             textCantidad2.Location = new Point(565, 392);
-            textCantidad2.MaxLength = 50;
+            textCantidad2.MaxLength = 25;
             textCantidad2.Name = "textCantidad2";
             textCantidad2.ShortcutsEnabled = false;
             textCantidad2.Size = new Size(81, 23);
@@ -443,7 +444,7 @@
             // textCodigo
             // 
             textCodigo.Location = new Point(130, 120);
-            textCodigo.MaxLength = 10;
+            textCodigo.MaxLength = 15;
             textCodigo.Name = "textCodigo";
             textCodigo.ShortcutsEnabled = false;
             textCodigo.Size = new Size(143, 23);
@@ -509,7 +510,8 @@
             Controls.Add(label3);
             FormBorderStyle = FormBorderStyle.None;
             Name = "SalidaInvenario";
-            Text = "SalidaInvenario";
+            Text = "MA";
+            Load += SalidaInvenario_Load_1;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
             PerformLayout();

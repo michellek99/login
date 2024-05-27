@@ -49,12 +49,16 @@
             // 
             // dataGridView1
             // 
+            dataGridView1.AllowUserToAddRows = false;
+            dataGridView1.AllowUserToDeleteRows = false;
+            dataGridView1.AllowUserToOrderColumns = true;
             dataGridView1.BackgroundColor = SystemColors.ButtonHighlight;
             dataGridView1.BorderStyle = BorderStyle.None;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Enabled = false;
+            dataGridView1.EditMode = DataGridViewEditMode.EditOnF2;
             dataGridView1.Location = new Point(52, 189);
             dataGridView1.Name = "dataGridView1";
+            dataGridView1.ReadOnly = true;
             dataGridView1.RowHeadersVisible = false;
             dataGridView1.Size = new Size(736, 162);
             dataGridView1.TabIndex = 109;
@@ -92,6 +96,8 @@
             textCodigo.ShortcutsEnabled = false;
             textCodigo.Size = new Size(143, 23);
             textCodigo.TabIndex = 110;
+            textCodigo.TextChanged += textCodigo_TextChanged;
+            textCodigo.PreviewKeyDown += textCodigo_PreviewKeyDown;
             // 
             // buttImprimir
             // 

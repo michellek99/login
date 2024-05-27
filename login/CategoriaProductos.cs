@@ -9,11 +9,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using login.Datos;
+using static iTextSharp.tool.xml.html.HTML;
 
 namespace login
 {
     public partial class CategoriaProductos : Form
     {
+        private ListaProductos listaProductosForm;
         public CategoriaProductos()
         {
             InitializeComponent();
@@ -23,7 +25,6 @@ namespace login
             buttNuevo.EnabledChanged += Button_EnabledChanged;
             buttModificar.EnabledChanged += Button_EnabledChanged;
             buttEliminar.EnabledChanged += Button_EnabledChanged;
-
 
             ApplyInitialButtonColors();
         }
@@ -47,6 +48,12 @@ namespace login
         {
             try
             {
+                if (string.IsNullOrEmpty(codigo))
+                {
+                    MessageBox.Show("Por favor, ingresa un código de producto.");
+                    return;
+                }
+
                 if (ConexionBD.Conex.State != System.Data.ConnectionState.Open)
                 {
                     ConexionBD.Conex.Open(); // Intenta abrir la conexión si no está abierta
@@ -68,6 +75,7 @@ namespace login
                             buttNuevo.Enabled = false;
                             buttModificar.Enabled = true;
                             buttEliminar.Enabled = true;
+                            textCategoria.Enabled = false;
                         }
                         else
                         {
@@ -204,7 +212,7 @@ namespace login
             string codigoCategoria = textCategoria.Text;
 
             // Muestra un mensaje de confirmación antes de proceder con la eliminación
-            var confirmResult = MessageBox.Show("¿Estás seguro de que deseas eliminar esta categoria?",
+            var confirmResult = MessageBox.Show("¿Estás seguro de que deseas eliminar esta categoría?",
                                                  "Confirmar eliminación",
                                                  MessageBoxButtons.YesNo);
             if (confirmResult == DialogResult.Yes)
@@ -214,7 +222,6 @@ namespace login
 
                 LimpiarCampos();
             }
-
         }
 
         private void EliminarCategoria(string codigoCategoria)
@@ -251,7 +258,7 @@ namespace login
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al eliminar la categoría: {ex.Message}");
+                MessageBox.Show($"No es posible eliminar la categoría, este código está enlazado a un producto existente.");
             }
         }
 
@@ -269,6 +276,7 @@ namespace login
             buttNuevo.Enabled = true;
             buttModificar.Enabled = false;
             buttEliminar.Enabled = false;
+            textCategoria.Enabled = true;
         }
 
         private void labelCategoria_Click(object sender, EventArgs e)
@@ -276,33 +284,6 @@ namespace login
 
         }
 
-        private void textCategoria_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Verifica si el carácter no es un dígito y tampoco es una tecla de control (como retroceso).
-            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true; // Maneja el evento, impidiendo que el carácter se escriba en el TextBox.
-            }
-        }
-
-        private void textNombre_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
-            {
-                e.Handled = true;
-                return;
-            }
-        }
-
-        private void textDescripcion_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            //Permite el ingreso de letras y números
-            if (!char.IsLetterOrDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true;
-                return;
-            }
-        }
 
         private void Button_EnabledChanged(object sender, EventArgs e)
         {
@@ -330,7 +311,6 @@ namespace login
             UpdateButtonColors(buttModificar);
             UpdateButtonColors(buttEliminar);
             // Repetir para otros botones según sea necesario
-
         }
 
         private void UpdateButtonColors(System.Windows.Forms.Button button)
@@ -372,10 +352,13 @@ namespace login
             if (e.KeyCode == Keys.Tab)
             {
                 // Crear una instancia del formulario ListaProductos con los parámetros necesarios
-                ListaProductos listaProductosForm = new ListaProductos("CATEGORIA_PRODUCTOS", "COD_CATEGORIA", "NOMBRE");
+                listaProductosForm = new ListaProductos("CATEGORIA_PRODUCTOS", "COD_CATEGORIA", "NOMBRE");
 
                 // Suscribirse al evento ProductoSeleccionado
                 listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
 
                 // Mostrar el formulario ListaProductos
                 listaProductosForm.Show();
@@ -391,6 +374,53 @@ namespace login
         public void SetTextCategoria(string codigo)
         {
             textCategoria.Text = codigo;
+        }
+
+        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cerrar el formulario ListaProductos si está abierto
+            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+            {
+                listaProductosForm.Close();
+            }
+        }
+
+        private void textCategoria_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        //PARA LOS PARAMETROS DE SEGURIDAD DE LETRAS Y NUMEROS
+        //btn codigo
+        private void textCategoria_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //no dejara pasar numeros del 32 al 47 y del 58 al 47 para que solo se queden los num. en el ASCII
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+        private void textNombre_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textDescripcion_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+
         }
     }
 }

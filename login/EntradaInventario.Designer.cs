@@ -130,11 +130,15 @@
             // 
             // textDescripcion
             // 
+            textDescripcion.Enabled = false;
             textDescripcion.Location = new Point(480, 149);
+            textDescripcion.MaxLength = 50;
             textDescripcion.Name = "textDescripcion";
             textDescripcion.ReadOnly = true;
+            textDescripcion.ShortcutsEnabled = false;
             textDescripcion.Size = new Size(356, 23);
             textDescripcion.TabIndex = 48;
+            textDescripcion.KeyPress += textDescripcion_KeyPress;
             // 
             // labelNombre
             // 
@@ -162,7 +166,7 @@
             // textCodigo
             // 
             textCodigo.Location = new Point(162, 149);
-            textCodigo.MaxLength = 38;
+            textCodigo.MaxLength = 15;
             textCodigo.Name = "textCodigo";
             textCodigo.ShortcutsEnabled = false;
             textCodigo.Size = new Size(143, 23);
@@ -194,7 +198,7 @@
             // textObservacion
             // 
             textObservacion.Location = new Point(208, 392);
-            textObservacion.MaxLength = 25;
+            textObservacion.MaxLength = 50;
             textObservacion.Name = "textObservacion";
             textObservacion.ShortcutsEnabled = false;
             textObservacion.Size = new Size(292, 23);
@@ -214,11 +218,15 @@
             // 
             // textExistencia
             // 
+            textExistencia.Enabled = false;
             textExistencia.Location = new Point(184, 199);
+            textExistencia.MaxLength = 25;
             textExistencia.Name = "textExistencia";
             textExistencia.ReadOnly = true;
+            textExistencia.ShortcutsEnabled = false;
             textExistencia.Size = new Size(66, 23);
             textExistencia.TabIndex = 59;
+            textExistencia.KeyPress += textExistencia_KeyPress;
             // 
             // label4
             // 
@@ -234,7 +242,7 @@
             // textCantidad
             // 
             textCantidad.Location = new Point(344, 198);
-            textCantidad.MaxLength = 38;
+            textCantidad.MaxLength = 25;
             textCantidad.Name = "textCantidad";
             textCantidad.ShortcutsEnabled = false;
             textCantidad.Size = new Size(66, 23);
@@ -255,13 +263,17 @@
             // 
             // textCosto
             // 
+            textCosto.Enabled = false;
             textCosto.Location = new Point(489, 197);
+            textCosto.MaxLength = 25;
             textCosto.Name = "textCosto";
             textCosto.ReadOnly = true;
+            textCosto.ShortcutsEnabled = false;
             textCosto.Size = new Size(81, 23);
             textCosto.TabIndex = 63;
             textCosto.TextAlignChanged += textCosto_TextAlignChanged;
             textCosto.TextChanged += textCosto_TextChanged;
+            textCosto.KeyPress += textCosto_KeyPress;
             // 
             // label7
             // 
@@ -287,11 +299,14 @@
             // 
             // textFecha
             // 
+            textFecha.Enabled = false;
             textFecha.Location = new Point(153, 100);
             textFecha.Name = "textFecha";
             textFecha.ReadOnly = true;
+            textFecha.ShortcutsEnabled = false;
             textFecha.Size = new Size(80, 23);
             textFecha.TabIndex = 66;
+            textFecha.TextChanged += textFecha_TextChanged;
             // 
             // label9
             // 
@@ -306,20 +321,25 @@
             // 
             // textNoDoc
             // 
+            textNoDoc.Enabled = false;
             textNoDoc.Location = new Point(366, 99);
             textNoDoc.Name = "textNoDoc";
-            textNoDoc.ReadOnly = true;
+            textNoDoc.ShortcutsEnabled = false;
             textNoDoc.Size = new Size(82, 23);
             textNoDoc.TabIndex = 68;
+            textNoDoc.TextChanged += textNoDoc_TextChanged;
             textNoDoc.PreviewKeyDown += textNoDoc_PreviewKeyDown;
             // 
             // textTotal
             // 
+            textTotal.Enabled = false;
             textTotal.Location = new Point(755, 391);
+            textTotal.MaxLength = 25;
             textTotal.Name = "textTotal";
             textTotal.ReadOnly = true;
             textTotal.Size = new Size(81, 23);
             textTotal.TabIndex = 73;
+            textTotal.KeyPress += textTotal_KeyPress;
             // 
             // label10
             // 
@@ -334,11 +354,14 @@
             // 
             // textCantidad2
             // 
+            textCantidad2.Enabled = false;
             textCantidad2.Location = new Point(597, 392);
+            textCantidad2.MaxLength = 25;
             textCantidad2.Name = "textCantidad2";
             textCantidad2.ReadOnly = true;
             textCantidad2.Size = new Size(81, 23);
             textCantidad2.TabIndex = 71;
+            textCantidad2.KeyPress += textCantidad2_KeyPress;
             // 
             // label11
             // 
@@ -395,11 +418,14 @@
             // 
             // textSubTotal
             // 
+            textSubTotal.Enabled = false;
             textSubTotal.Location = new Point(673, 199);
+            textSubTotal.MaxLength = 25;
             textSubTotal.Name = "textSubTotal";
             textSubTotal.ReadOnly = true;
             textSubTotal.Size = new Size(81, 23);
             textSubTotal.TabIndex = 78;
+            textSubTotal.KeyPress += textSubTotal_KeyPress;
             // 
             // label6
             // 
@@ -426,13 +452,14 @@
             // textBuscarDoc
             // 
             textBuscarDoc.Location = new Point(602, 100);
-            textBuscarDoc.MaxLength = 38;
+            textBuscarDoc.MaxLength = 15;
             textBuscarDoc.Name = "textBuscarDoc";
             textBuscarDoc.ShortcutsEnabled = false;
             textBuscarDoc.Size = new Size(152, 23);
             textBuscarDoc.TabIndex = 80;
             textBuscarDoc.TextChanged += textUsuario_TextChanged;
             textBuscarDoc.KeyPress += textBuscarDoc_KeyPress;
+            textBuscarDoc.PreviewKeyDown += textBuscarDoc_PreviewKeyDown;
             // 
             // label13
             // 

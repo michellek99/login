@@ -14,9 +14,19 @@ namespace login
 {
     public partial class ConfiguracionUsuarios : Form
     {
+        private ListaProductos listaProductosForm;
         public ConfiguracionUsuarios()
         {
             InitializeComponent();
+            button1.Enabled = true;
+            button3.Enabled = false;
+            button2.Enabled = false;
+            button1.EnabledChanged += Button_EnabledChanged;
+            button3.EnabledChanged += Button_EnabledChanged;
+            button2.EnabledChanged += Button_EnabledChanged;
+
+
+            ApplyInitialButtonColors();
         }
         //Encriptacion encriptacion = new Encriptacion();
         private void label1_Click(object sender, EventArgs e)
@@ -188,6 +198,13 @@ namespace login
 
         private void BuscarUsuario(string codigoUsuario)
         {
+            // Verificar si el código de usuario está vacío
+            if (string.IsNullOrWhiteSpace(codigoUsuario))
+            {
+                MessageBox.Show("Por favor, ingrese el código de empleado.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (ConexionBD.Conex.State != ConnectionState.Open)
             {
                 MessageBox.Show("La conexión a la base de datos no está abierta.");
@@ -214,10 +231,10 @@ namespace login
                             Contrasena.Text = Decrypt(reader["Contraseña"].ToString());
                             No_Identificacion.Text = reader["No_Identificacion"].ToString();
 
-                            // Establece la selección de los ComboBox basándose en los nombres. 
-                            // Esto requiere que los ComboBox ya tengan cargados todos los posibles valores.
-                            //               Genero.SelectedIndex = Genero.FindStringExact(reader["Genero"].ToString());
-                            //             Tipo_Usuario.SelectedIndex = Tipo_Usuario.FindStringExact(reader["Tipo_Usuario"].ToString());
+                            button1.Enabled = false;
+                            button3.Enabled = true;
+                            button2.Enabled = true;
+                            EMP_CODIGO.Enabled = false;
                         }
                         else
                         {
@@ -230,7 +247,7 @@ namespace login
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al buscar el usuario.");
+                MessageBox.Show($"Error al buscar el usuario: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -320,7 +337,7 @@ namespace login
         }
         private void LimpiarControles()
         {
-
+            EMP_CODIGO.Enabled = true;
             EMP_CODIGO.Text = "";
             Nombres.Text = "";
             Apellidos.Text = "";
@@ -329,6 +346,9 @@ namespace login
             //Tipo_Usuario.SelectedIndex = -1;
             Contrasena.Text = "";
             //Genero.SelectedIndex = -1;
+            button1.Enabled = true;
+            button3.Enabled = false;
+            button2.Enabled = false;
         }
 
         private void Contrasena_TextChanged(object sender, EventArgs e)
@@ -350,40 +370,20 @@ namespace login
         {
 
         }
-        private void Numeros_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
+
 
         private void Letras_TextChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void Letras_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Permitir solo letras (a-z, A-Z) y teclas de control (como Backspace)
-            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
-            {
-                e.Handled = true; // Ignorar el evento de tecla
-            }
-        }
+
 
         private void Direccion_TextChanged(object sender, EventArgs e)
         {
 
         }
-        private void Direccion_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Permitir letras (a-z, A-Z), números (0-9), guión (-) y teclas de control (como Backspace)
-            if (!char.IsControl(e.KeyChar) && !char.IsLetterOrDigit(e.KeyChar) && e.KeyChar != '-' && e.KeyChar != ' ')
-            {
-                e.Handled = true; // Ignorar el evento de tecla
-            }
-        }
+
 
         private void No_Identificacion_TextChanged(object sender, EventArgs e)
         {
@@ -402,10 +402,13 @@ namespace login
             if (e.KeyCode == Keys.Tab)
             {
                 // Crear una instancia del formulario ListaProductos con los parámetros necesarios
-                ListaProductos listaProductosForm = new ListaProductos("USUARIOS", "EMP_CODIGO", "NOMBRES");
+                listaProductosForm = new ListaProductos("USUARIOS", "EMP_CODIGO", "NOMBRES");
 
                 // Suscribirse al evento ProductoSeleccionado
                 listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
 
                 // Mostrar el formulario ListaProductos
                 listaProductosForm.Show();
@@ -421,6 +424,94 @@ namespace login
         public void SetTextCodigo(string codigo)
         {
             EMP_CODIGO.Text = codigo;
+        }
+
+        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cerrar el formulario ListaProductos si está abierto
+            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+            {
+                listaProductosForm.Close();
+            }
+        }
+
+        private void EMP_CODIGO_KeyUp(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void Button_EnabledChanged(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Button button = sender as System.Windows.Forms.Button;
+            if (button != null)
+            {
+                if (!button.Enabled)
+                {
+                    // Define los colores cuando el botón está deshabilitado
+                    button.BackColor = Color.White;
+                    button.ForeColor = Color.FromArgb(0, 0, 64);
+                }
+                else
+                {
+                    // Restaura los colores originales cuando el botón está habilitado
+                    button.BackColor = Color.FromArgb(0, 0, 64);  // Fondo azul oscuro
+                    button.ForeColor = Color.White;  // Texto blanco
+                }
+            }
+        }
+
+        private void ApplyInitialButtonColors()
+        {
+            UpdateButtonColors(button1);
+            UpdateButtonColors(button3);
+            UpdateButtonColors(button2);
+            // Repetir para otros botones según sea necesario
+
+        }
+
+        private void UpdateButtonColors(System.Windows.Forms.Button button)
+        {
+            if (!button.Enabled)
+            {
+                button.BackColor = Color.White;
+                button.ForeColor = Color.FromArgb(0, 0, 64);
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(0, 0, 64);
+                button.ForeColor = Color.White;
+            }
+        }
+
+        //PARA LOS PARAMETROS DE SEGURIDAD DE LETRAS Y NUMEROS
+        //btn codigo
+        private void Numeros_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+        private void Letras_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+        private void Direccion_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Permitir letras (a-z, A-Z), números (0-9), guión (-) y teclas de control (como Backspace)
+            if ((e.KeyChar >= 33 && e.KeyChar <= 43) || (e.KeyChar >= 58 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Signos perimitidos / - , .", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
         }
     }
 }

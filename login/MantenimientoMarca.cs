@@ -14,6 +14,7 @@ namespace login
 {
     public partial class MantenimientoMarca : Form
     {
+        private ListaProductos listaProductosForm;
         public MantenimientoMarca()
         {
             InitializeComponent();
@@ -39,6 +40,12 @@ namespace login
 
         private void BuscarMarca(string codigoMarca)
         {
+            if (string.IsNullOrEmpty(codigoMarca))
+            {
+                MessageBox.Show("Por favor, ingrese un código.");
+                return;
+            }
+
             // Verifica si la conexión está abierta
             if (ConexionBD.Conex.State != System.Data.ConnectionState.Open)
             {
@@ -60,8 +67,10 @@ namespace login
                         if (reader.Read())
                         {
                             textNombre.Text = reader["NOMBRE"].ToString();
+                            buttNuevo.Enabled = false;
                             buttModificar.Enabled = true;
                             buttEliminar.Enabled = true;
+                            textCodigo.Enabled = false;
                         }
                         else
                         {
@@ -76,6 +85,7 @@ namespace login
                 MessageBox.Show($"Error al buscar la marca: {ex.Message}");
             }
         }
+
 
         private void buttNuevo_Click(object sender, EventArgs e)
         {
@@ -206,6 +216,12 @@ namespace login
 
         private void EliminarMarca(string codigoMarca)
         {
+            if (string.IsNullOrEmpty(codigoMarca))
+            {
+                MessageBox.Show("Por favor, ingresa un código. ");
+                return;
+            }
+
             // Verifica si la conexión está abierta
             if (ConexionBD.Conex.State != System.Data.ConnectionState.Open)
             {
@@ -250,26 +266,10 @@ namespace login
         {
             textCodigo.Text = "";
             textNombre.Text = "";
+            buttNuevo.Enabled = true;
             buttModificar.Enabled = false;
             buttEliminar.Enabled = false;
-        }
-
-        private void textCodigo_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Verifica si el carácter no es un dígito y tampoco es una tecla de control (como retroceso).
-            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true; // Maneja el evento, impidiendo que el carácter se escriba en el TextBox.
-            }
-        }
-
-        private void textNombre_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
-            {
-                e.Handled = true;
-                return;
-            }
+            textCodigo.Enabled = true;
         }
 
         private void Button_EnabledChanged(object sender, EventArgs e)
@@ -339,10 +339,13 @@ namespace login
             if (e.KeyCode == Keys.Tab)
             {
                 // Crear una instancia del formulario ListaProductos con los parámetros necesarios
-                ListaProductos listaProductosForm = new ListaProductos("MARCA", "COD_MARCA", "NOMBRE");
+                listaProductosForm = new ListaProductos("MARCA", "COD_MARCA", "NOMBRE");
 
                 // Suscribirse al evento ProductoSeleccionado
                 listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
 
                 // Mostrar el formulario ListaProductos
                 listaProductosForm.Show();
@@ -358,6 +361,43 @@ namespace login
         public void SetTextCodigo(string codigo)
         {
             textCodigo.Text = codigo;
+        }
+
+        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cerrar el formulario ListaProductos si está abierto
+            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+            {
+                listaProductosForm.Close();
+            }
+        }
+
+        private void textCodigo_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+       
+        //PARA LOS PARAMETROS DE SEGURIDAD DE LETRAS Y NUMEROS
+        //btn codigo
+        private void textCodigo_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //no dejara pasar numeros del 32 al 47 y del 58 al 47 para que solo se queden los num. en el ASCII
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+        //btn nombre
+        private void textNombre_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
         }
     }
 }

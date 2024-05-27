@@ -14,12 +14,15 @@ namespace login
 {
     public partial class ListaProductos : Form
     {
-        //private EntradaInventario entradaInventarioForm;
         public event Action<string> ProductoSeleccionado;
 
         private string nombreTabla;
         private string campoCodigo;
         private string campoNombre;
+
+        // Variable estática para mantener la instancia actual
+        private static ListaProductos instanciaActual;
+
         public ListaProductos(string nombreTabla, string campoCodigo, string campoNombre)
         {
             InitializeComponent();
@@ -29,76 +32,49 @@ namespace login
             this.campoNombre = campoNombre;
 
             CargarDatosEnListBox();
-            //entradaInventarioForm = entradaInventario;
+
+            // Registro de los manejadores de eventos
+            this.listBox1.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
+            this.listBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBox1_KeyDown);
+
+            // Cerrar la instancia anterior si ya existe
+            if (instanciaActual != null && !instanciaActual.IsDisposed)
+            {
+                instanciaActual.Close();
+            }
+
+            // Establecer esta instancia como la actual
+            instanciaActual = this;
+
+            // Evento de cierre para limpiar la referencia estática
+            this.FormClosed += new FormClosedEventHandler(this.ListaProductos_FormClosed);
         }
-        /*
+
+        private void ListaProductos_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Limpiar la referencia estática cuando el formulario se cierre
+            if (instanciaActual == this)
+            {
+                instanciaActual = null;
+            }
+        }
+
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
-            // Verificar si hay algún elemento seleccionado en el listBox1
-            if (listBox1.SelectedItem != null)
-            {
-                // Obtener el elemento seleccionado y dividirlo en código y nombre
-                string selectedItem = listBox1.SelectedItem.ToString();
-                string[] parts = selectedItem.Split('-');
-                string codigo = parts[0].Trim(); // Código del producto
-
-                // Verificar si la instancia de entradaInventarioForm es nula antes de intentar acceder a ella
-                if (entradaInventarioForm != null)
-                {
-                    // Llamar al método SetTextCodigo del formulario EntradaInventario para establecer el valor del textCodigo
-                    entradaInventarioForm.SetTextCodigo(codigo);
-
-                    // Cerrar el formulario ListaProductos
-                    this.Close();
-                }
-                else
-                {
-                    // Si la instancia de entradaInventarioForm es nula, mostrar un mensaje de error
-                    MessageBox.Show("Error: La instancia de entradaInventarioForm es nula.");
-                }
-            }
+            SeleccionarProducto();
         }
 
-        public void CargarDatosEnListBox()
+        private void listBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (ConexionBD.Conex.State != ConnectionState.Open)
+            if (e.KeyCode == Keys.Enter)
             {
-                MessageBox.Show("La conexión a la base de datos no está abierta.");
-                return;
-            }
-
-            try
-            {
-                string query = @"SELECT COD_PRODUCTO, NOMBRE FROM PRODUCTOS";
-
-                using (OracleCommand command = new OracleCommand(query, ConexionBD.Conex))
-                {
-                    using (OracleDataReader reader = command.ExecuteReader())
-                    {
-                        // Limpiar ListBox antes de agregar elementos
-                        listBox1.Items.Clear();
-
-                        // Iterar a través de los datos y agregarlos al ListBox
-                        while (reader.Read())
-                        {
-                            // Obtener el código y el nombre del producto
-                            string codigo = reader["COD_PRODUCTO"].ToString();
-                            string nombre = reader["NOMBRE"].ToString();
-
-                            // Agregar el código y el nombre del producto al ListBox
-                            listBox1.Items.Add(codigo + " - " + nombre);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los datos: {ex.Message}");
+                SeleccionarProducto();
+                // Evitar el sonido de "ding" que ocurre al presionar Enter
+                e.SuppressKeyPress = true;
             }
         }
-        */
 
-        private void listBox1_DoubleClick(object sender, EventArgs e)
+        private void SeleccionarProducto()
         {
             if (listBox1.SelectedItem != null)
             {
@@ -144,7 +120,8 @@ namespace login
                 MessageBox.Show($"Error al cargar los datos: {ex.Message}");
             }
         }
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+
+            private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }

@@ -83,7 +83,9 @@
             // textCodigo
             // 
             textCodigo.Location = new Point(138, 96);
+            textCodigo.MaxLength = 15;
             textCodigo.Name = "textCodigo";
+            textCodigo.ShortcutsEnabled = false;
             textCodigo.Size = new Size(206, 23);
             textCodigo.TabIndex = 3;
             textCodigo.TextChanged += textCodigo_TextChanged;
@@ -114,9 +116,12 @@
             // textReferencia
             // 
             textReferencia.Location = new Point(565, 97);
+            textReferencia.MaxLength = 15;
             textReferencia.Name = "textReferencia";
+            textReferencia.ShortcutsEnabled = false;
             textReferencia.Size = new Size(280, 23);
             textReferencia.TabIndex = 6;
+            textReferencia.KeyPress += textReferencia_KeyPress;
             // 
             // label6
             // 
@@ -131,9 +136,12 @@
             // textNombre
             // 
             textNombre.Location = new Point(138, 165);
+            textNombre.MaxLength = 50;
             textNombre.Name = "textNombre";
+            textNombre.ShortcutsEnabled = false;
             textNombre.Size = new Size(707, 23);
             textNombre.TabIndex = 8;
+            textNombre.KeyPress += textNombre_KeyPress;
             // 
             // label7
             // 
@@ -170,17 +178,22 @@
             // 
             comboCategoria.FormattingEnabled = true;
             comboCategoria.Location = new Point(138, 322);
+            comboCategoria.MaxLength = 38;
             comboCategoria.Name = "comboCategoria";
             comboCategoria.Size = new Size(280, 23);
             comboCategoria.TabIndex = 13;
             comboCategoria.SelectedIndexChanged += comboCategoria_SelectedIndexChanged;
+            comboCategoria.KeyPress += comboCategoria_KeyPress;
             // 
             // textPrecio
             // 
             textPrecio.Location = new Point(565, 322);
+            textPrecio.MaxLength = 15;
             textPrecio.Name = "textPrecio";
+            textPrecio.ShortcutsEnabled = false;
             textPrecio.Size = new Size(280, 23);
             textPrecio.TabIndex = 15;
+            textPrecio.KeyPress += textPrecio_KeyPress;
             // 
             // button1
             // 
@@ -245,9 +258,12 @@
             // textPresentacion
             // 
             textPresentacion.Location = new Point(138, 247);
+            textPresentacion.MaxLength = 15;
             textPresentacion.Name = "textPresentacion";
+            textPresentacion.ShortcutsEnabled = false;
             textPresentacion.Size = new Size(707, 23);
             textPresentacion.TabIndex = 20;
+            textPresentacion.KeyPress += textPresentacion_KeyPress;
             // 
             // label10
             // 
@@ -264,9 +280,11 @@
             // 
             comboMarca.FormattingEnabled = true;
             comboMarca.Location = new Point(138, 395);
+            comboMarca.MaxLength = 38;
             comboMarca.Name = "comboMarca";
             comboMarca.Size = new Size(280, 23);
             comboMarca.TabIndex = 22;
+            comboMarca.KeyPress += comboMarca_KeyPress;
             // 
             // buttBuscar
             // 

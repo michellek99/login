@@ -50,7 +50,7 @@
             buttBuscar.FlatAppearance.BorderSize = 0;
             buttBuscar.FlatStyle = FlatStyle.Flat;
             buttBuscar.ForeColor = SystemColors.ControlLightLight;
-            buttBuscar.Location = new Point(685, 141);
+            buttBuscar.Location = new Point(615, 141);
             buttBuscar.Name = "buttBuscar";
             buttBuscar.Size = new Size(66, 25);
             buttBuscar.TabIndex = 40;
@@ -111,7 +111,8 @@
             textNombre.Location = new Point(281, 212);
             textNombre.MaxLength = 25;
             textNombre.Name = "textNombre";
-            textNombre.Size = new Size(470, 23);
+            textNombre.ShortcutsEnabled = false;
+            textNombre.Size = new Size(309, 23);
             textNombre.TabIndex = 31;
             textNombre.KeyPress += textNombre_KeyPress;
             // 
@@ -141,10 +142,12 @@
             // textCategoria
             // 
             textCategoria.Location = new Point(281, 143);
-            textCategoria.MaxLength = 38;
+            textCategoria.MaxLength = 15;
             textCategoria.Name = "textCategoria";
-            textCategoria.Size = new Size(395, 23);
+            textCategoria.ShortcutsEnabled = false;
+            textCategoria.Size = new Size(309, 23);
             textCategoria.TabIndex = 26;
+            textCategoria.TextChanged += textCategoria_TextChanged;
             textCategoria.KeyPress += textCategoria_KeyPress;
             textCategoria.PreviewKeyDown += textCategoria_PreviewKeyDown;
             // 
@@ -190,9 +193,10 @@
             // textDescripcion
             // 
             textDescripcion.Location = new Point(281, 283);
-            textDescripcion.MaxLength = 25;
+            textDescripcion.MaxLength = 50;
             textDescripcion.Multiline = true;
             textDescripcion.Name = "textDescripcion";
+            textDescripcion.ShortcutsEnabled = false;
             textDescripcion.Size = new Size(470, 90);
             textDescripcion.TabIndex = 41;
             textDescripcion.KeyPress += textDescripcion_KeyPress;

@@ -19,6 +19,8 @@ namespace login
 {
     public partial class EntradaInventario : Form
     {
+
+        private ListaProductos listaProductosForm;
         public EntradaInventario()
         {
             InitializeComponent();
@@ -37,13 +39,6 @@ namespace login
             buttImprimir.EnabledChanged += Button_EnabledChanged;
 
             ApplyInitialButtonColors();
-        }
-
-        // Método que maneja el evento CodigoSeleccionado del formulario ListaProductos
-        private void ListaProductosForm_CodigoSeleccionado(string codigo)
-        {
-            // Asignar el código seleccionado al textbox en EntradaInventario
-            textCodigo.Text = codigo;
         }
 
         private void ConfigurarColumnasDataGridView()
@@ -84,14 +79,7 @@ namespace login
 
         }
 
-        private void textCantidad_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Verifica si el carácter no es un dígito y tampoco es una tecla de control (como retroceso).
-            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true; // Maneja el evento, impidiendo que el carácter se escriba en el TextBox.
-            }
-        }
+
 
         private void buttInsertar_Click(object sender, EventArgs e)
         {
@@ -114,6 +102,7 @@ namespace login
             // Limpiar los TextBox después de la inserción
             LimpiarTextBoxes();
             SumarColumnas();
+            textCodigo.Enabled = true;
             buttInsertar.Enabled = false;
         }
 
@@ -136,6 +125,13 @@ namespace login
 
         private void CargarDatosProducto()
         {
+            // Verificar si el campo de búsqueda está vacío
+            if (string.IsNullOrWhiteSpace(textCodigo.Text))
+            {
+                MessageBox.Show("Por favor, ingrese el código de producto.");
+                return;
+            }
+
             if (ConexionBD.Conex.State != ConnectionState.Open)
             {
                 MessageBox.Show("La conexión a la base de datos no está abierta.");
@@ -165,6 +161,8 @@ namespace login
                             // Asignar el precio al campo textCosto
                             textCosto.Text = precio.ToString();
                             buttInsertar.Enabled = true;
+                            textBuscarDoc.Enabled = false;
+                            textCodigo.Enabled = false;
                         }
                         else
                         {
@@ -202,6 +200,7 @@ namespace login
                 MessageBox.Show($"Error al buscar el producto: {ex.Message}");
             }
         }
+
         private void textCantidad_TextChanged(object sender, EventArgs e)
         {
 
@@ -316,6 +315,8 @@ namespace login
                     buttNuevo.Enabled = true;
                     buttEliminar.Enabled = false;
                     buttImprimir.Enabled = false;
+                    textBuscarDoc.Enabled = true;
+                    textCodigo.Enabled = true;
                 }
             }
 
@@ -330,23 +331,17 @@ namespace login
 
         private void textCodigo_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            /*
-            if (e.KeyCode == Keys.Tab)
-            {
-                // Crear una instancia del formulario ListaProductos y pasar el formulario EntradaInventario como argumento
-                ListaProductos listaProductosForm = new ListaProductos(this);
 
-                // Mostrar el formulario ListaProductos
-                listaProductosForm.Show();
-            }
-            */
             if (e.KeyCode == Keys.Tab)
             {
                 // Crear una instancia del formulario ListaProductos con los parámetros necesarios
-                ListaProductos listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
+                listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
 
                 // Suscribirse al evento ProductoSeleccionado
                 listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
 
                 // Mostrar el formulario ListaProductos
                 listaProductosForm.Show();
@@ -364,10 +359,7 @@ namespace login
             textCodigo.Text = codigo;
         }
 
-        private void textCosto_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void buttNuevo_Click(object sender, EventArgs e)
         {
@@ -392,7 +384,7 @@ namespace login
                     EstablecerFechaActual();
                 }
 
-                
+
             }
             else
             {
@@ -480,9 +472,20 @@ namespace login
 
         private void BuscarParaEliminar(string noDocumento)
         {
+            // Verificar si el número de documento está vacío
+            if (string.IsNullOrWhiteSpace(noDocumento))
+            {
+                MessageBox.Show("El número de documento está vacío.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             // Prepara la consulta SQL para buscar en la tabla DETALLE_INVENTARIO
-            string queryDetalle = "SELECT COD_PRODUCTO, DESCRIPCION, INGRESO, COSTO, SUBTOTAL FROM DETALLE_INVENTARIO WHERE NO_DOCUMENTO = :noDocumento";
+            string queryDetalle = "SELECT COD_PRODUCTO, DESCRIPCION, EGRESO, COSTO, SUBTOTAL FROM DETALLE_INVENTARIO WHERE NO_DOCUMENTO = :noDocumento";
+
+            // Prepara la consulta SQL para obtener la observación de la tabla DETALLE_INVENTARIO
             string queryObservacion = "SELECT OBSERVACION FROM DETALLE_INVENTARIO WHERE NO_DOCUMENTO = :noDocumento AND ROWNUM = 1";
+
+            // Prepara la consulta SQL para obtener la fecha de la tabla INVENTARIO
             string queryFecha = "SELECT FECHA FROM INVENTARIO WHERE NO_DOCUMENTO = :noDocumento";
 
             // Verifica si la conexión está abierta
@@ -492,9 +495,7 @@ namespace login
                 return;
             }
 
-            // Preparar la consulta SQL para verificar la existencia del número de documento
             string queryExisteDocumento = "SELECT COUNT(1) FROM INVENTARIO WHERE NO_DOCUMENTO = :noDocumento";
-
 
             try
             {
@@ -507,7 +508,7 @@ namespace login
                     if (count == 0)
                     {
                         MessageBox.Show("El número de documento no existe en la base de datos.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        textBuscarDoc.Text = "";
+
                         return;
                     }
                     else
@@ -519,7 +520,7 @@ namespace login
                             commandTipoDocumento.Parameters.Add(new OracleParameter("noDocumento", noDocumento));
 
                             string tipoDocumento = commandTipoDocumento.ExecuteScalar().ToString();
-                            if (tipoDocumento != "EI")
+                            if (tipoDocumento != "SI")
                             {
                                 MessageBox.Show("El tipo de documento no es válido.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 return;
@@ -542,7 +543,7 @@ namespace login
                             object[] rowData = new object[5]; // 5 columnas
                             rowData[0] = readerDetalle["COD_PRODUCTO"];
                             rowData[1] = readerDetalle["DESCRIPCION"];
-                            rowData[2] = readerDetalle["INGRESO"];
+                            rowData[2] = readerDetalle["EGRESO"];
                             rowData[3] = readerDetalle["COSTO"];
                             rowData[4] = readerDetalle["SUBTOTAL"];
                             dataGridView1.Rows.Add(rowData);
@@ -569,24 +570,25 @@ namespace login
                     if (fecha != null && fecha is DateTime)
                     {
                         DateTime fechaDateTime = (DateTime)fecha;
-                        textFecha.Text = fechaDateTime.ToString("yyyy-MM-dd"); 
+                        textFecha.Text = fechaDateTime.ToString("yyyy-MM-dd"); // Formatear solo la fecha
                     }
                 }
-
                 buttBuscar.Enabled = false;
                 buttInsertar.Enabled = false;
                 buttNuevo.Enabled = false;
                 buttEliminar.Enabled = true;
                 buttImprimir.Enabled = true;
+                textBuscarDoc.Enabled = false;
+                textCodigo.Enabled = false;
 
                 SumarColumnas();
-
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error al buscar en la base de datos: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void EliminarRegistro(string noDocumento)
         {
@@ -679,23 +681,7 @@ namespace login
             LimpiarTextoNumerico(textCodigo);
         }
 
-        private void textCosto_TextAlignChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textCodigo_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
-
-        private void textUsuario_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void buttBuscarDoc_Click(object sender, EventArgs e)
         {
@@ -705,28 +691,7 @@ namespace login
             BuscarParaEliminar(noDocumento);
         }
 
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void textBuscarDoc_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Verifica si el carácter no es un dígito y tampoco es una tecla de control (como retroceso).
-            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true; // Maneja el evento, impidiendo que el carácter se escriba en el TextBox.
-            }
-        }
-
-        private void textObservacion_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
-            {
-                e.Handled = true;
-                return;
-            }
-        }
+        
 
         private void Button_EnabledChanged(object sender, EventArgs e)
         {
@@ -855,5 +820,156 @@ namespace login
                 }
             }
         }
+
+        private void textBuscarDoc_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Tab)
+            {
+                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
+                listaProductosForm = new ListaProductos("INVENTARIO", "NO_DOCUMENTO", "TIPO_DOCUMENTO");
+
+                // Suscribirse al evento ProductoSeleccionado
+                listaProductosForm.ProductoSeleccionado += ListaProductosForm_Seleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
+
+                // Mostrar el formulario ListaProductos
+                listaProductosForm.Show();
+            }
+        }
+
+        private void ListaProductosForm_Seleccionado(string NoDoc)
+        {
+            SetTextNoDoc(NoDoc);
+        }
+
+        public void SetTextNoDoc(string NoDoc)
+        {
+            textBuscarDoc.Text = NoDoc;
+        }
+
+        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cerrar el formulario ListaProductos si está abierto
+            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+            {
+                listaProductosForm.Close();
+            }
+        }
+
+        //PARA LOS PARAMETROS DE SEGURIDAD DE LETRAS Y NUMEROS
+        //btn codigo
+        private void textCodigo_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //no dejara pasar numeros del 32 al 47 y del 58 al 47 para que solo se queden los num. en el ASCII
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textDescripcion_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textExistencia_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+        private void textCantidad_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textCosto_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textSubTotal_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textObservacion_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textCantidad2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textTotal_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+        private void textBuscarDoc_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //no dejara pasar numeros del 32 al 47 y del 58 al 47 para que solo se queden los num. en el ASCII
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        //CODIGO NO FUNCIONAL
+        private void textNoDoc_TextChanged(object sender, EventArgs e) { }
+
+        private void textFecha_TextChanged(object sender, EventArgs e) { }
+        private void textCosto_TextAlignChanged(object sender, EventArgs e) { }
+      
+        private void textUsuario_TextChanged(object sender, EventArgs e) { }
+        
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+
+        private void textCosto_TextChanged(object sender, EventArgs e) { }
     }
 }

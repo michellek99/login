@@ -19,6 +19,11 @@ namespace login
             InitializeComponent();
             txtTotal.Enabled = false;
             ConfigurarColumnasDataGridView();
+
+            buttImprimir.Enabled = false;
+            buttImprimir.EnabledChanged += Button_EnabledChanged;
+
+            ApplyInitialButtonColors();
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -79,6 +84,7 @@ namespace login
 
                             int cantidadFilas = dataGridView1.RowCount - 1;
                             txtTotal.Text = cantidadFilas.ToString();
+                            buttImprimir.Enabled = true;
                         }
                     }
                 }
@@ -169,6 +175,47 @@ namespace login
                 }
             }
 
+        }
+
+        private void Button_EnabledChanged(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Button button = sender as System.Windows.Forms.Button;
+            if (button != null)
+            {
+                if (!button.Enabled)
+                {
+                    // Define los colores cuando el botón está deshabilitado
+                    button.BackColor = Color.White;
+                    button.ForeColor = Color.FromArgb(0, 0, 64);
+                }
+                else
+                {
+                    // Restaura los colores originales cuando el botón está habilitado
+                    button.BackColor = Color.FromArgb(0, 0, 64);  // Fondo azul oscuro
+                    button.ForeColor = Color.White;  // Texto blanco
+                }
+            }
+        }
+
+        private void ApplyInitialButtonColors()
+        {
+            UpdateButtonColors(buttImprimir);
+            // Repetir para otros botones según sea necesario
+
+        }
+
+        private void UpdateButtonColors(System.Windows.Forms.Button button)
+        {
+            if (!button.Enabled)
+            {
+                button.BackColor = Color.White;
+                button.ForeColor = Color.FromArgb(0, 0, 64);
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(0, 0, 64);
+                button.ForeColor = Color.White;
+            }
         }
     }
 

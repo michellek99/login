@@ -14,6 +14,7 @@ namespace login
 {
     public partial class Mantenimiento_de_Productos : Form
     {
+        private ListaProductos listaProductosForm;
         public Mantenimiento_de_Productos()
         {
             InitializeComponent();
@@ -162,6 +163,7 @@ namespace login
                             button1.Enabled = false;
                             button4.Enabled = true;
                             button3.Enabled = true;
+                            textCodigo.Enabled = false;
                         }
                         else
                         {
@@ -193,8 +195,7 @@ namespace login
             comboCategoria.SelectedValue.ToString(),
             textPrecio.Text.Trim());
 
-            LimpiarControles();
-        }
+            LimpiarControles();        }
 
         private void InsertarProducto(string codProducto, string referencia, string nombre, string presentacion, string codMarca, string codCategoria, string precio)
         {
@@ -386,32 +387,13 @@ namespace login
             button1.Enabled = true;
             button4.Enabled = false;
             button3.Enabled = false;
+            textCodigo.Enabled = true;
 
             comboMarca.SelectedIndex = -1; // Esto seleccionará "ningún ítem"
             comboCategoria.SelectedIndex = -1; // Esto seleccionará "ningún ítem"
         }
 
-        private void textCodigo_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboCategoria_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Numeros_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-        private void Numeros_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
-            {
-                e.Handled = true;
-            }
-        }
+      
 
         private void Button_EnabledChanged(object sender, EventArgs e)
         {
@@ -480,10 +462,13 @@ namespace login
             if (e.KeyCode == Keys.Tab)
             {
                 // Crear una instancia del formulario ListaProductos con los parámetros necesarios
-                ListaProductos listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
+                listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
 
                 // Suscribirse al evento ProductoSeleccionado
                 listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
 
                 // Mostrar el formulario ListaProductos
                 listaProductosForm.Show();
@@ -500,5 +485,99 @@ namespace login
         {
             textCodigo.Text = codigo;
         }
+
+        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cerrar el formulario ListaProductos si está abierto
+            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+            {
+                listaProductosForm.Close();
+            }
+        }
+        //PARA LOS PARAMETROS DE SEGURIDAD DE LETRAS Y NUMEROS
+        //btn codigo
+        private void Numeros_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //no dejara pasar numeros del 32 al 47 y del 58 al 47 para que solo se queden los num. en el ASCII
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+
+        }
+
+        private void textReferencia_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textNombre_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void textPresentacion_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void comboCategoria_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+           
+
+        }
+
+        private void textPrecio_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 32 && e.KeyChar <= 45) || (e.KeyChar >= 47 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo números y el signo . ", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private void comboMarca_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            {
+                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                e.Handled = true;
+                return;
+            }
+
+        }
+        
+
+        //CODIGO QUE NO SE ESTA USANDO
+        private void textCodigo_TextChanged(object sender, EventArgs e){ }
+
+        private void comboCategoria_SelectedIndexChanged(object sender, EventArgs e) { }
+
+        private void Numeros_TextChanged(object sender, EventArgs e) { }
+        
     }
 }

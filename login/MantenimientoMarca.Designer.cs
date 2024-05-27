@@ -107,9 +107,10 @@
             // 
             // textNombre
             // 
-            textNombre.Location = new Point(281, 214);
+            textNombre.Location = new Point(273, 273);
             textNombre.MaxLength = 25;
             textNombre.Name = "textNombre";
+            textNombre.ShortcutsEnabled = false;
             textNombre.Size = new Size(470, 23);
             textNombre.TabIndex = 58;
             textNombre.KeyPress += textNombre_KeyPress;
@@ -119,7 +120,7 @@
             labelNombre.AutoSize = true;
             labelNombre.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             labelNombre.ForeColor = SystemColors.ControlLightLight;
-            labelNombre.Location = new Point(178, 215);
+            labelNombre.Location = new Point(170, 274);
             labelNombre.Name = "labelNombre";
             labelNombre.Size = new Size(62, 17);
             labelNombre.TabIndex = 57;
@@ -130,7 +131,7 @@
             labelCodigo.AutoSize = true;
             labelCodigo.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             labelCodigo.ForeColor = SystemColors.ControlLightLight;
-            labelCodigo.Location = new Point(178, 146);
+            labelCodigo.Location = new Point(170, 205);
             labelCodigo.Name = "labelCodigo";
             labelCodigo.Size = new Size(56, 17);
             labelCodigo.TabIndex = 56;
@@ -138,11 +139,13 @@
             // 
             // textCodigo
             // 
-            textCodigo.Location = new Point(281, 145);
-            textCodigo.MaxLength = 38;
+            textCodigo.Location = new Point(273, 204);
+            textCodigo.MaxLength = 15;
             textCodigo.Name = "textCodigo";
-            textCodigo.Size = new Size(395, 23);
+            textCodigo.ShortcutsEnabled = false;
+            textCodigo.Size = new Size(310, 23);
             textCodigo.TabIndex = 55;
+            textCodigo.TextChanged += textCodigo_TextChanged;
             textCodigo.KeyPress += textCodigo_KeyPress;
             textCodigo.PreviewKeyDown += textCodigo_PreviewKeyDown;
             // 
@@ -151,7 +154,7 @@
             labelTitulo.AutoSize = true;
             labelTitulo.Font = new Font("Segoe Fluent Icons", 18F, FontStyle.Bold);
             labelTitulo.ForeColor = SystemColors.ButtonHighlight;
-            labelTitulo.Location = new Point(384, 54);
+            labelTitulo.Location = new Point(376, 113);
             labelTitulo.Name = "labelTitulo";
             labelTitulo.Size = new Size(231, 24);
             labelTitulo.TabIndex = 54;
@@ -160,7 +163,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(390, 116);
+            label2.Location = new Point(382, 175);
             label2.Name = "label2";
             label2.Size = new Size(0, 15);
             label2.TabIndex = 53;
@@ -171,7 +174,7 @@
             buttBuscar.FlatAppearance.BorderSize = 0;
             buttBuscar.FlatStyle = FlatStyle.Flat;
             buttBuscar.ForeColor = SystemColors.ControlLightLight;
-            buttBuscar.Location = new Point(685, 143);
+            buttBuscar.Location = new Point(610, 202);
             buttBuscar.Name = "buttBuscar";
             buttBuscar.Size = new Size(66, 25);
             buttBuscar.TabIndex = 59;

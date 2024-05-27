@@ -14,6 +14,7 @@ namespace login
 {
     public partial class Kardex : Form
     {
+        private ListaProductos listaProductosForm;
         public Kardex()
         {
             InitializeComponent();
@@ -23,6 +24,13 @@ namespace login
             txtSaldo.Enabled = false;
             txtNombre.Enabled = false;
             txtpresentacion.Enabled = false;
+
+            textCodigo.Enabled = true;
+            buttImprimir.Enabled = false;
+            buttImprimir.EnabledChanged += Button_EnabledChanged;
+
+
+            ApplyInitialButtonColors();
 
 
         }
@@ -191,6 +199,9 @@ namespace login
                     }
                 }
 
+                textCodigo.Enabled = false;
+                buttImprimir.Enabled = true;
+
             }
             catch (Exception ex)
             {
@@ -255,6 +266,9 @@ namespace login
                     ((TextBox)control).Clear();
                 }
             }
+
+            textCodigo.Enabled = true;
+            buttImprimir.Enabled = false;
         }
 
         private void Kardex_Load(object sender, EventArgs e)
@@ -267,10 +281,92 @@ namespace login
 
 
         }
+
+        private void textCodigo_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textCodigo_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Tab)
+            {
+                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
+                listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
+
+                // Suscribirse al evento ProductoSeleccionado
+                listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
+
+
+                // Mostrar el formulario ListaProductos
+                listaProductosForm.Show();
+            }
+        }
+
+        private void ListaProductosForm_ProductoSeleccionado(string codigo)
+        {
+            // Establecer el valor del textCodigo con el código del producto seleccionado
+            SetTextCodigo(codigo);
+        }
+
+        public void SetTextCodigo(string codigo)
+        {
+            textCodigo.Text = codigo;
+        }
+
+        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cerrar el formulario ListaProductos si está abierto
+            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+            {
+                listaProductosForm.Close();
+            }
+        }
+
+        private void Button_EnabledChanged(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Button button = sender as System.Windows.Forms.Button;
+            if (button != null)
+            {
+                if (!button.Enabled)
+                {
+                    // Define los colores cuando el botón está deshabilitado
+                    button.BackColor = Color.White;
+                    button.ForeColor = Color.FromArgb(0, 0, 64);
+                }
+                else
+                {
+                    // Restaura los colores originales cuando el botón está habilitado
+                    button.BackColor = Color.FromArgb(0, 0, 64);  // Fondo azul oscuro
+                    button.ForeColor = Color.White;  // Texto blanco
+                }
+            }
+        }
+
+        private void ApplyInitialButtonColors()
+        {
+            UpdateButtonColors(buttImprimir);
+            // Repetir para otros botones según sea necesario
+
+        }
+
+        private void UpdateButtonColors(System.Windows.Forms.Button button)
+        {
+            if (!button.Enabled)
+            {
+                button.BackColor = Color.White;
+                button.ForeColor = Color.FromArgb(0, 0, 64);
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(0, 0, 64);
+                button.ForeColor = Color.White;
+            }
+        }
     }
-
-
-
 }
 
        

@@ -69,10 +69,12 @@
             EMP_CODIGO.Location = new Point(179, 99);
             EMP_CODIGO.MaxLength = 8;
             EMP_CODIGO.Name = "EMP_CODIGO";
+            EMP_CODIGO.ShortcutsEnabled = false;
             EMP_CODIGO.Size = new Size(221, 23);
             EMP_CODIGO.TabIndex = 1;
             EMP_CODIGO.TextChanged += Numeros_TextChanged;
             EMP_CODIGO.KeyPress += Numeros_KeyPress;
+            EMP_CODIGO.KeyUp += EMP_CODIGO_KeyUp;
             EMP_CODIGO.PreviewKeyDown += EMP_CODIGO_PreviewKeyDown;
             // 
             // label2
@@ -100,8 +102,9 @@
             // Nombres
             // 
             Nombres.Location = new Point(179, 157);
-            Nombres.MaxLength = 20;
+            Nombres.MaxLength = 35;
             Nombres.Name = "Nombres";
+            Nombres.ShortcutsEnabled = false;
             Nombres.Size = new Size(221, 23);
             Nombres.TabIndex = 6;
             Nombres.TextChanged += Numeros_TextChanged;
@@ -132,8 +135,9 @@
             // Contrasena
             // 
             Contrasena.Location = new Point(547, 214);
-            Contrasena.MaxLength = 8;
+            Contrasena.MaxLength = 14;
             Contrasena.Name = "Contrasena";
+            Contrasena.ShortcutsEnabled = false;
             Contrasena.Size = new Size(221, 23);
             Contrasena.TabIndex = 13;
             Contrasena.TextChanged += Contrasena_TextChanged;
@@ -146,7 +150,7 @@
             buttImprimir.FlatAppearance.MouseOverBackColor = Color.Navy;
             buttImprimir.FlatStyle = FlatStyle.Flat;
             buttImprimir.ForeColor = SystemColors.ControlLightLight;
-            buttImprimir.Location = new Point(652, 378);
+            buttImprimir.Location = new Point(498, 378);
             buttImprimir.Name = "buttImprimir";
             buttImprimir.Size = new Size(116, 30);
             buttImprimir.TabIndex = 51;
@@ -178,7 +182,7 @@
             button2.FlatAppearance.MouseOverBackColor = Color.Navy;
             button2.FlatStyle = FlatStyle.Flat;
             button2.ForeColor = SystemColors.ControlLightLight;
-            button2.Location = new Point(499, 378);
+            button2.Location = new Point(652, 378);
             button2.Name = "button2";
             button2.Size = new Size(116, 30);
             button2.TabIndex = 53;
@@ -207,6 +211,7 @@
             No_Identificacion.Location = new Point(179, 218);
             No_Identificacion.MaxLength = 13;
             No_Identificacion.Name = "No_Identificacion";
+            No_Identificacion.ShortcutsEnabled = false;
             No_Identificacion.Size = new Size(221, 23);
             No_Identificacion.TabIndex = 8;
             No_Identificacion.TextChanged += No_Identificacion_TextChanged;
@@ -237,8 +242,9 @@
             // Apellidos
             // 
             Apellidos.Location = new Point(547, 159);
-            Apellidos.MaxLength = 20;
+            Apellidos.MaxLength = 35;
             Apellidos.Name = "Apellidos";
+            Apellidos.ShortcutsEnabled = false;
             Apellidos.Size = new Size(221, 23);
             Apellidos.TabIndex = 56;
             Apellidos.KeyPress += Letras_KeyPress;
@@ -259,6 +265,7 @@
             Direccion.Location = new Point(179, 281);
             Direccion.MaxLength = 50;
             Direccion.Name = "Direccion";
+            Direccion.ShortcutsEnabled = false;
             Direccion.Size = new Size(589, 23);
             Direccion.TabIndex = 58;
             Direccion.KeyPress += Direccion_KeyPress;

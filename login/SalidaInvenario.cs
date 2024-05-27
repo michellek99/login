@@ -15,14 +15,26 @@ namespace login
 {
     public partial class SalidaInvenario : Form
     {
+        private ListaProductos listaProductosForm;
         public SalidaInvenario()
         {
             InitializeComponent();
             ConfigurarColumnasDataGridView();
             EstablecerFechaActual();
             textCosto.Text = "0.00";
-            buttImprimir.Enabled = false;
             CargarDatos.CargarUltimoIDInventario(textNoDoc, ConexionBD.Conex);
+            buttInsertar.Enabled = false;
+            buttBuscar.Enabled = true;
+            buttNuevo.Enabled = true;
+            buttEliminar.Enabled = false;
+            buttImprimir.Enabled = false;
+            buttBuscar.EnabledChanged += Button_EnabledChanged;
+            buttInsertar.EnabledChanged += Button_EnabledChanged;
+            buttNuevo.EnabledChanged += Button_EnabledChanged;
+            buttEliminar.EnabledChanged += Button_EnabledChanged;
+            buttImprimir.EnabledChanged += Button_EnabledChanged;
+
+            ApplyInitialButtonColors();
         }
 
         private void SalidaInvenario_Load(object sender, EventArgs e)
@@ -112,12 +124,17 @@ namespace login
         private void buttBuscar_Click(object sender, EventArgs e)
         {
             CargarDatosProducto();
-            //----- Deshabilitar el botón "Nuevo"
-            buttNuevo.Enabled = false;
         }
 
         private void CargarDatosProducto()
         {
+            // Verificar si el campo de búsqueda está vacío
+            if (string.IsNullOrWhiteSpace(textCodigo.Text))
+            {
+                MessageBox.Show("Por favor, ingrese el código de producto.");
+                return;
+            }
+
             if (ConexionBD.Conex.State != ConnectionState.Open)
             {
                 MessageBox.Show("La conexión a la base de datos no está abierta.");
@@ -146,6 +163,7 @@ namespace login
 
                             // Asignar el precio al campo textCosto
                             textCosto.Text = precio.ToString();
+                            buttInsertar.Enabled = true;
                         }
                         else
                         {
@@ -154,7 +172,7 @@ namespace login
                         }
                     }
                 }
-                //realizar modificacion aca
+
                 // Consultar la existencia del producto en la tabla DETALLE_INVENTARIO
                 string queryDetalle = "SELECT SUM(INGRESO) AS TOTAL_INGRESO, SUM(EGRESO) AS TOTAL_EGRESO FROM DETALLE_INVENTARIO WHERE COD_PRODUCTO = :codigo GROUP BY COSTO";
                 using (OracleCommand command = new OracleCommand(queryDetalle, ConexionBD.Conex))
@@ -169,6 +187,10 @@ namespace login
                             decimal existencia = totalIngreso - totalEgreso;
 
                             textExistencia.Text = existencia.ToString();
+
+                            textCodigo.Enabled = false;
+                            textUsuario.Enabled = false;
+                            buttInsertar.Enabled = true;
                         }
                         else
                         {
@@ -183,6 +205,7 @@ namespace login
                 MessageBox.Show($"Error al buscar el producto: {ex.Message}");
             }
         }
+
         private void textCantidad_TextChanged(object sender, EventArgs e)
         {
             decimal cantidad = 0;
@@ -204,6 +227,7 @@ namespace login
 
         private void LimpiarTextBoxes()
         {
+            textCodigo.Enabled = true;
             textCodigo.Text = "";
             textDescripcion.Text = "";
             textExistencia.Text = "";
@@ -271,6 +295,10 @@ namespace login
                     ((TextBox)control).Text = "";
 
                     textCosto.Text = "0.00";
+                    buttInsertar.Enabled = false;
+                    buttBuscar.Enabled = true;
+                    buttNuevo.Enabled = true;
+                    buttEliminar.Enabled = false;
                     buttImprimir.Enabled = false;
                 }
             }
@@ -279,22 +307,10 @@ namespace login
             dataGridView1.Rows.Clear();
         }
 
-        private void textCodigo_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
-
         public void SetTextCodigo(string codigo)
         {
             textCodigo.Text = codigo;
         }
-
-        private void textCosto_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-
         public void InsertarDatos()
         {
             if (ConexionBD.Conex.State != ConnectionState.Open)
@@ -384,6 +400,13 @@ namespace login
 
         private void BuscarParaEliminar(string noDocumento)
         {
+            // Verificar si el número de documento está vacío
+            if (string.IsNullOrWhiteSpace(noDocumento))
+            {
+                MessageBox.Show("El número de documento está vacío.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             // Prepara la consulta SQL para buscar en la tabla DETALLE_INVENTARIO
             string queryDetalle = "SELECT COD_PRODUCTO, DESCRIPCION, EGRESO, COSTO, SUBTOTAL FROM DETALLE_INVENTARIO WHERE NO_DOCUMENTO = :noDocumento";
 
@@ -401,7 +424,6 @@ namespace login
             }
 
             string queryExisteDocumento = "SELECT COUNT(1) FROM INVENTARIO WHERE NO_DOCUMENTO = :noDocumento";
-
 
             try
             {
@@ -479,8 +501,13 @@ namespace login
                         textFecha.Text = fechaDateTime.ToString("yyyy-MM-dd"); // Formatear solo la fecha
                     }
                 }
-
+                buttBuscar.Enabled = false;
+                buttInsertar.Enabled = false;
+                buttNuevo.Enabled = false;
+                buttEliminar.Enabled = true;
                 buttImprimir.Enabled = true;
+                textCodigo.Enabled = false;
+                textUsuario.Enabled = false;
 
                 SumarColumnas();
             }
@@ -489,6 +516,7 @@ namespace login
                 MessageBox.Show("Error al buscar en la base de datos: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void EliminarRegistro(string noDocumento)
         {
@@ -560,8 +588,6 @@ namespace login
         private void buttBuscarDoc_Click(object sender, EventArgs e)
         {
             string noDocumento = textUsuario.Text;
-            // Deshabilitar el botón "Nuevo"
-            buttNuevo.Enabled = false;
 
             // Llama al método para buscar en la base de datos y mostrar la información
             BuscarParaEliminar(noDocumento);
@@ -584,6 +610,7 @@ namespace login
             // Limpiar los TextBox después de la inserción
             LimpiarTextBoxes();
             SumarColumnas();
+            buttInsertar.Enabled = false;
         }
 
 
@@ -607,6 +634,8 @@ namespace login
                 CargarDatos.CargarUltimoIDInventario(textNoDoc, ConexionBD.Conex);
                 EstablecerFechaActual();
             }
+
+            
         }
 
         private void buttEliminar_Click_1(object sender, EventArgs e)
@@ -629,8 +658,6 @@ namespace login
 
         private void buttLimpiar_Click(object sender, EventArgs e)
         {
-            // Habilitar el botón "Nuevo" al limpiar los campos
-            buttNuevo.Enabled = true;
 
             foreach (Control control in Controls)
             {
@@ -639,7 +666,9 @@ namespace login
                     ((TextBox)control).Text = "";
 
                     textCosto.Text = "0.00";
-                    buttImprimir.Enabled = false;
+                    textCodigo.Enabled = true;
+                    textUsuario.Enabled = true;
+                    buttInsertar.Enabled = false;
                 }
             }
 
@@ -649,6 +678,7 @@ namespace login
         private void buttImprimir_Click(object sender, EventArgs e)
         {
             GeneradorPDF();
+           
         }
         private void textNoDoc_PreviewKeyDown_1(object sender, PreviewKeyDownEventArgs e)
         {
@@ -677,8 +707,184 @@ namespace login
             textSubTotal.Text = string.Format("Q. {0,10}", subtotal.ToString("#,##0.00"));
         }
 
-        private void textCodigo_TextChanged(object sender, EventArgs e)
-        { }
+        private void textCodigo_PreviewKeyDown_1(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Tab)
+            {
+                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
+                listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
+
+                // Suscribirse al evento ProductoSeleccionado
+                listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
+
+
+                // Mostrar el formulario ListaProductos
+                listaProductosForm.Show();
+            }
+        }
+
+        private void ListaProductosForm_ProductoSeleccionado(string codigo)
+        {
+            // Establecer el valor del textCodigo con el código del producto seleccionado
+            SetTextCodigo(codigo);
+        }
+
+        private void Button_EnabledChanged(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Button button = sender as System.Windows.Forms.Button;
+            if (button != null)
+            {
+                if (!button.Enabled)
+                {
+                    // Define los colores cuando el botón está deshabilitado
+                    button.BackColor = Color.White;
+                    button.ForeColor = Color.FromArgb(0, 0, 64);
+                }
+                else
+                {
+                    // Restaura los colores originales cuando el botón está habilitado
+                    button.BackColor = Color.FromArgb(0, 0, 64);  // Fondo azul oscuro
+                    button.ForeColor = Color.White;  // Texto blanco
+                }
+            }
+        }
+
+
+        private void ApplyInitialButtonColors()
+        {
+            UpdateButtonColors(buttInsertar);
+            UpdateButtonColors(buttNuevo);
+            UpdateButtonColors(buttBuscar);
+            UpdateButtonColors(buttEliminar);
+            UpdateButtonColors(buttImprimir);
+            // Repetir para otros botones según sea necesario
+        }
+
+        private void UpdateButtonColors(System.Windows.Forms.Button button)
+        {
+            if (!button.Enabled)
+            {
+                button.BackColor = Color.White;
+                button.ForeColor = Color.FromArgb(0, 0, 64);
+            }
+            else
+            {
+                button.BackColor = Color.FromArgb(0, 0, 64);
+                button.ForeColor = Color.White;
+            }
+        }
+
+        private void GeneradorPDF()
+        {
+            // Crear un cuadro de diálogo para guardar el archivo PDF
+            SaveFileDialog guardarDialogo = new SaveFileDialog();
+            guardarDialogo.Filter = "Archivos PDF (*.pdf)|*.pdf";
+            guardarDialogo.Title = "Guardar PDF";
+
+            if (guardarDialogo.ShowDialog() == DialogResult.OK)
+            {
+                string nombreArchivo = guardarDialogo.FileName;
+
+
+                // Crear documento PDF
+                Document documento = new Document(PageSize.A4);
+
+                try
+                {
+                    // Crear un escritor de PDF
+                    PdfWriter.GetInstance(documento, new FileStream(nombreArchivo, FileMode.Create));
+
+                    // Abrir el documento
+                    documento.Open();
+
+                    // Agregar la palabra "Inventario" con estilo
+                    iTextSharp.text.Font tituloFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 24, BaseColor.BLACK);
+                    Paragraph titulo = new Paragraph("Salidas de Inventario", tituloFont);
+                    titulo.Alignment = Element.ALIGN_CENTER;
+                    documento.Add(titulo);
+
+
+                    // Crear contenido adicional para agregar al PDF
+                    string contenidoAdicional = $"Fecha : {textFecha.Text}\n";
+                    contenidoAdicional += $"Numero del documento: {textNoDoc.Text}\n\n";
+                    contenidoAdicional += $"Observaciones: {textObservacion.Text}\n\n";
+                    contenidoAdicional += $"Cantidad: {textCantidad2.Text}\n\n";
+                    contenidoAdicional += $"Total: {textTotal.Text}\n\n";
+
+
+                    documento.Add(new Paragraph(contenidoAdicional));
+
+
+                    // Agregar contenido del DataGridView al PDF
+                    PdfPTable tabla = new PdfPTable(dataGridView1.Columns.Count);
+                    tabla.WidthPercentage = 100;
+
+                    // Agregar encabezados de columna
+                    foreach (DataGridViewColumn columna in dataGridView1.Columns)
+                    {
+                        PdfPCell celda = new PdfPCell(new Phrase(columna.HeaderText));
+                        tabla.AddCell(celda);
+                    }
+
+                    // Agregar filas y celdas
+                    foreach (DataGridViewRow fila in dataGridView1.Rows)
+                    {
+                        foreach (DataGridViewCell celda in fila.Cells)
+                        {
+                            if (celda.Value != null)
+                            {
+                                tabla.AddCell(celda.Value.ToString());
+                            }
+                        }
+                    }
+
+                    documento.Add(tabla);
+
+                    // Cerrar el documento
+                    documento.Close();
+
+                    MessageBox.Show("PDF generado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al generar el PDF: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void textUsuario_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Tab)
+            {
+                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
+                listaProductosForm = new ListaProductos("INVENTARIO", "NO_DOCUMENTO", "TIPO_DOCUMENTO");
+
+                // Suscribirse al evento ProductoSeleccionado
+                listaProductosForm.ProductoSeleccionado += ListaProductosForm_Seleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                this.FormClosed += PrincipalForm_FormClosed;
+
+
+                // Mostrar el formulario ListaProductos
+                listaProductosForm.Show();
+            }
+        }
+
+        private void ListaProductosForm_Seleccionado(string NoDoc)
+        {
+            SetTextNoDoc(NoDoc);
+        }
+
+        public void SetTextNoDoc(string NoDoc)
+        {
+            textUsuario.Text = NoDoc;
+        }
+
+
 
         //PARA LOS PARAMETROS DE SEGURIDAD DE LETRAS Y NUMEROS
         //btn codigo
@@ -692,10 +898,6 @@ namespace login
             }
         }
         //btn descripción
-        private void textDescripcion_TextChanged(object sender, EventArgs e)
-        {
-            //por equivocación abri este código lo elimine y lo volvi a regresar pero medio error
-        }
 
         private void textDescripcion_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -779,11 +981,37 @@ namespace login
                 return;
             }
         }
+
+
+        //VACIO TEXTCOSTO, TEXTCODIGO , DESCRIPCION
+        private void textCosto_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+        private void textCodigo_TextChanged(object sender, EventArgs e)
+        { }
+        private void textCodigo_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+        private void textDescripcion_TextChanged(object sender, EventArgs e)
+        {
+            //por equivocación abri este código lo elimine y lo volvi a regresar pero medio error
+        }
+
+        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cerrar el formulario ListaProductos si está abierto
+            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+            {
+                listaProductosForm.Close();
+            }
+        }
+
         private void textNoDoc_TextChanged(object sender, EventArgs e)
         {
 
         }
-
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         { }
@@ -792,105 +1020,12 @@ namespace login
         {
 
         }
-
-        private void textCodigo_PreviewKeyDown_1(object sender, PreviewKeyDownEventArgs e)
+        private void SalidaInvenario_Load_1(object sender, EventArgs e)
         {
-            if (e.KeyCode == Keys.Tab)
-            {
-                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
-                ListaProductos listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
 
-                // Suscribirse al evento ProductoSeleccionado
-                listaProductosForm.ProductoSeleccionado += ListaProductosForm_ProductoSeleccionado;
-
-                // Mostrar el formulario ListaProductos
-                listaProductosForm.Show();
-            }
         }
 
-        private void ListaProductosForm_ProductoSeleccionado(string codigo)
-        {
-            // Establecer el valor del textCodigo con el código del producto seleccionado
-            SetTextCodigo(codigo);
-        }
 
-        private void GeneradorPDF()
-        {
-            // Crear un cuadro de diálogo para guardar el archivo PDF
-            SaveFileDialog guardarDialogo = new SaveFileDialog();
-            guardarDialogo.Filter = "Archivos PDF (*.pdf)|*.pdf";
-            guardarDialogo.Title = "Guardar PDF";
-
-            if (guardarDialogo.ShowDialog() == DialogResult.OK)
-            {
-                string nombreArchivo = guardarDialogo.FileName;
-
-
-                // Crear documento PDF
-                Document documento = new Document(PageSize.A4);
-
-                try
-                {
-                    // Crear un escritor de PDF
-                    PdfWriter.GetInstance(documento, new FileStream(nombreArchivo, FileMode.Create));
-
-                    // Abrir el documento
-                    documento.Open();
-
-                    // Agregar la palabra "Inventario" con estilo
-                    iTextSharp.text.Font tituloFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 24, BaseColor.BLACK);
-                    Paragraph titulo = new Paragraph("Salidas de Inventario", tituloFont);
-                    titulo.Alignment = Element.ALIGN_CENTER;
-                    documento.Add(titulo);
-
-
-                    // Crear contenido adicional para agregar al PDF
-                    string contenidoAdicional = $"Fecha : {textFecha.Text}\n";
-                    contenidoAdicional += $"Numero del documento: {textNoDoc.Text}\n\n";
-                    contenidoAdicional += $"Observaciones: {textObservacion.Text}\n\n";
-                    contenidoAdicional += $"Cantidad: {textCantidad2.Text}\n\n";
-                    contenidoAdicional += $"Total: {textTotal.Text}\n\n";
-
-
-                    documento.Add(new Paragraph(contenidoAdicional));
-
-
-                    // Agregar contenido del DataGridView al PDF
-                    PdfPTable tabla = new PdfPTable(dataGridView1.Columns.Count);
-                    tabla.WidthPercentage = 100;
-
-                    // Agregar encabezados de columna
-                    foreach (DataGridViewColumn columna in dataGridView1.Columns)
-                    {
-                        PdfPCell celda = new PdfPCell(new Phrase(columna.HeaderText));
-                        tabla.AddCell(celda);
-                    }
-
-                    // Agregar filas y celdas
-                    foreach (DataGridViewRow fila in dataGridView1.Rows)
-                    {
-                        foreach (DataGridViewCell celda in fila.Cells)
-                        {
-                            if (celda.Value != null)
-                            {
-                                tabla.AddCell(celda.Value.ToString());
-                            }
-                        }
-                    }
-
-                    documento.Add(tabla);
-
-                    // Cerrar el documento
-                    documento.Close();
-
-                    MessageBox.Show("PDF generado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error al generar el PDF: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
     }
 }
 
