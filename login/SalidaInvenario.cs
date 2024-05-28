@@ -113,13 +113,26 @@ namespace login
         }
 
         // Método para validar el valor ingresado en el campo Cantidad
-        private void ValidarCantidad()
+        private bool ValidarCantidad()
         {
             // Verifica si el campo no está vacío y si el número es mayor a cero
             if (string.IsNullOrEmpty(textCantidad.Text) || int.Parse(textCantidad.Text) <= 0)
             {
                 MessageBox.Show("Favor de ingresar una cantidad mayor a cero", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
             }
+
+            // Verifica si la cantidad es menor o igual a la existencia
+            int cantidad = int.Parse(textCantidad.Text);
+            int existencia = int.Parse(textExistencia.Text);
+
+            if (cantidad > existencia)
+            {
+                MessageBox.Show("No hay suficientes existencias.", "Existencias Insuficientes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            return true;
         }
         private void buttBuscar_Click(object sender, EventArgs e)
         {
@@ -319,13 +332,8 @@ namespace login
                 return;
             }
 
-            string empCodigo = textUsuario.Text;
-            bool usuarioExiste = ValidarUsuario(empCodigo);
-            if (!usuarioExiste)
-            {
-                MessageBox.Show("El código de usuario no existe en la tabla USUARIOS.");
-                return;
-            }
+            int usuario = EnviarUsuario.GetUsuario();
+            string empCodigo = usuario.ToString();
 
             // Iniciar una transacción
             OracleTransaction transaction = ConexionBD.Conex.BeginTransaction();
@@ -595,7 +603,19 @@ namespace login
         }
         private void buttInsertar_Click_1(object sender, EventArgs e)
         {
-            ValidarCantidad();
+            if (!ValidarCantidad())
+            {
+                // Si la validación falla, salir del método
+                return;
+            }
+
+            // Validar que la cantidad a retirar no se mayor que las existencias
+            if (!ValidarExistencias())
+            {
+                LimpiarTextBoxes();
+                buttInsertar.Enabled = false;
+                return;
+            }
 
             // Obtener los valores de los TextBox
             string codigo = textCodigo.Text;
@@ -604,38 +624,82 @@ namespace login
             decimal costo = Convert.ToDecimal(textCosto.Text);
             string subtotal = textSubTotal.Text;
 
-            // Agregar una nueva fila al DataGridView con los valores de los TextBox
-            dataGridView1.Rows.Add(codigo, descripcion, cantidad, costo, subtotal);
+            // Validar si el código ya existe en el DataGridView
+            if (CodigoExisteEnDataGridView(codigo))
+            {
+                MessageBox.Show("El código de producto ya está en la tabla.", "Código Duplicado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                // Agregar una nueva fila al DataGridView con los valores de los TextBox
+                dataGridView1.Rows.Add(codigo, descripcion, cantidad, costo, subtotal);
+
+                SumarColumnas();
+            }
 
             // Limpiar los TextBox después de la inserción
             LimpiarTextBoxes();
-            SumarColumnas();
             buttInsertar.Enabled = false;
         }
 
+        private bool CodigoExisteEnDataGridView(string codigo)
+        {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                // Asumiendo que el código está en la primera columna (índice 0)
+                if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() == codigo)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        private bool ValidarExistencias()
+        {
+            int cantidad = Convert.ToInt32(textCantidad.Text);
+            int existencia = Convert.ToInt32(textExistencia.Text);
+
+            if (cantidad > existencia)
+            {
+                MessageBox.Show("No hay suficientes existencias.", "Existencias Insuficientes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+            return true;
+        }
 
         private void buttNuevo_Click_1(object sender, EventArgs e)
         {
-            // Confirmar si se desea realizar la eliminación
-            DialogResult result = MessageBox.Show("¿Seguro que desea insertar los registros indicados?", "Confirmar inserción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            if (result == DialogResult.Yes)
+            if (!string.IsNullOrWhiteSpace(textObservacion.Text) && dataGridView1.Rows.Count > 1)
             {
-                InsertarDatos();
+                // Confirmar si se desea realizar la eliminación
+                DialogResult result = MessageBox.Show("¿Seguro que desea insertar los registros indicados?", "Confirmar inserción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                DialogResult resultPDF = MessageBox.Show("¿Desea generar un PDF de su transacción?", "Confirmación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (resultPDF == DialogResult.Yes)
+                if (result == DialogResult.Yes)
                 {
-                    GeneradorPDF();
-                }
+                    InsertarDatos();
 
-                LimpiarControles();
-                CargarDatos.CargarUltimoIDInventario(textNoDoc, ConexionBD.Conex);
-                EstablecerFechaActual();
+                    DialogResult resultPDF = MessageBox.Show("¿Desea generar un PDF de su transacción?", "Confirmación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (resultPDF == DialogResult.Yes)
+                    {
+                        GeneradorPDF();
+                    }
+
+                    LimpiarControles();
+                    CargarDatos.CargarUltimoIDInventario(textNoDoc, ConexionBD.Conex);
+                    EstablecerFechaActual();
+                }
+            }
+            else
+            {
+                // Si alguno de los controles está vacío, muestra un mensaje al usuario y sale del evento
+                MessageBox.Show("Faltan datos que llenar.");
+                return;
             }
 
-            
         }
 
         private void buttEliminar_Click_1(object sender, EventArgs e)

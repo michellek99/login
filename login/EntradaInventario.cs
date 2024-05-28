@@ -96,14 +96,35 @@ namespace login
             decimal costo = Convert.ToDecimal(textCosto.Text);
             string subtotal = textSubTotal.Text;
 
-            // Agregar una nueva fila al DataGridView con los valores de los TextBox
-            dataGridView1.Rows.Add(codigo, descripcion, cantidad, costo, subtotal);
+            // Validar si el código ya existe en el DataGridView
+            if (CodigoExisteEnDataGridView(codigo))
+            {
+                MessageBox.Show("El código de producto ya está en la tabla.", "Código Duplicado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                // Agregar una nueva fila al DataGridView con los valores de los TextBox
+                dataGridView1.Rows.Add(codigo, descripcion, cantidad, costo, subtotal);
+
+                SumarColumnas();
+            }
 
             // Limpiar los TextBox después de la inserción
             LimpiarTextBoxes();
-            SumarColumnas();
-            textCodigo.Enabled = true;
             buttInsertar.Enabled = false;
+        }
+
+        private bool CodigoExisteEnDataGridView(string codigo)
+        {
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                // Asumiendo que el código está en la primera columna (índice 0)
+                if (row.Cells[0].Value != null && row.Cells[0].Value.ToString() == codigo)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // Método para validar el valor ingresado en el campo Cantidad
@@ -243,6 +264,8 @@ namespace login
 
         private void LimpiarTextBoxes()
         {
+
+            textCodigo.Enabled = true;
             textCodigo.Text = "";
             textDescripcion.Text = "";
             textExistencia.Text = "";
