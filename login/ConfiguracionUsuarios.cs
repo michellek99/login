@@ -41,6 +41,10 @@ namespace login
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (!ValidarTextBoxes())
+            {
+                return;
+            }
             InsertarUsuario(
             EMP_CODIGO.Text.Trim(),
             Nombres.Text.Trim(),
@@ -53,6 +57,25 @@ namespace login
 
             Contrasena.Text = Convert.ToBase64String(Encoding.UTF8.GetBytes(Contrasena.Text)));
 
+        }
+        private bool ValidarTextBoxes()
+        {
+            foreach (Control control in this.Controls)
+            {
+                // Verifica si el control es un TextBox
+                if (control is TextBox)
+                {
+                    TextBox textBox = control as TextBox;
+
+                    // Verifica si el TextBox está vacío
+                    if (string.IsNullOrWhiteSpace(textBox.Text))
+                    {
+                        MessageBox.Show("Debe llenar todos los campos");
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         //Inserta usuario en la base de datos//

@@ -242,7 +242,7 @@
             // textCantidad
             // 
             textCantidad.Location = new Point(344, 198);
-            textCantidad.MaxLength = 25;
+            textCantidad.MaxLength = 10;
             textCantidad.Name = "textCantidad";
             textCantidad.ShortcutsEnabled = false;
             textCantidad.Size = new Size(66, 23);

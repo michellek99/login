@@ -123,11 +123,10 @@ namespace login
             // Llamada al método para comprobar las credenciales
             if (ComprobarCredenciales(usuarioIngresado, contraseñaIngresada))
             {
-                menu menu = new menu();
+                menu menuForm = new menu();
+                menuForm.FormClosed += MenuForm_FormClosed; // Suscribirse al evento FormClosed
                 this.Hide();
-                menu.Show();
-
-
+                menuForm.Show();
 
                 int codigoEmpleado = obtenerCodigoUsuario(textuser.Text);
                 EnviarUsuario.SetUsuario(codigoEmpleado);
@@ -139,6 +138,13 @@ namespace login
             }
 
         }
+
+        private void MenuForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cuando el formulario menu se cierra, cerramos la aplicación
+            Application.Exit();
+        }
+
         private bool ComprobarCredenciales(string usuario, string contraseña)
         {
             // Usa try-catch para manejar posibles excepciones

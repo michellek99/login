@@ -136,6 +136,16 @@ namespace login
             CargarDatosProducto(noCodigo);
             SumarCol();
 
+            if (string.IsNullOrEmpty(noCodigo))
+            {
+                MessageBox.Show("Por favor, ingresa un código de producto.");
+                LimpiarControles();
+                return;
+
+            }
+
+
+
         }
 
         private void CargarDatosProducto(string noCodigo)
@@ -143,18 +153,21 @@ namespace login
             // Prepara la consulta SQL para buscar en la tabla DETALLE_INVENTARIO
             string queryDetalle = "SELECT OBSERVACION, INGRESO, EGRESO, NO_DOCUMENTO, TIPO_DOCUMENTO FROM DETALLE_INVENTARIO WHERE COD_PRODUCTO = :noCodigo";
             string queryNombre = "SELECT NOMBRE FROM PRODUCTOS WHERE COD_PRODUCTO = :noCodigo";
-            string queryprese = "SELECT  PRESENTACION FROM PRODUCTOS WHERE COD_PRODUCTO = :noCodigo";
+            string queryPrese = "SELECT PRESENTACION FROM PRODUCTOS WHERE COD_PRODUCTO = :noCodigo";
+
             if (ConexionBD.Conex.State != ConnectionState.Open)
             {
                 MessageBox.Show("La conexión a la base de datos no está abierta.");
                 return;
             }
+
             try
             {
+                bool registroEncontrado = false;
 
                 using (OracleCommand commandDetalle = new OracleCommand(queryDetalle, ConexionBD.Conex))
                 {
-                    commandDetalle.Parameters.Add(new OracleParameter("COD_PRODUCTO", noCodigo));
+                    commandDetalle.Parameters.Add(new OracleParameter("noCodigo", noCodigo));
                     using (OracleDataReader readerDetalle = commandDetalle.ExecuteReader())
                     {
                         // Limpiar las filas existentes del DataGridView
@@ -170,38 +183,45 @@ namespace login
                             rowData[3] = readerDetalle["INGRESO"];
                             rowData[4] = readerDetalle["EGRESO"];
                             dataGridView1.Rows.Add(rowData);
+                            registroEncontrado = true;
                         }
                     }
                 }
+
                 using (OracleCommand commandNombre = new OracleCommand(queryNombre, ConexionBD.Conex))
                 {
-                    commandNombre.Parameters.Add(new OracleParameter("COD_PRODUCTO", noCodigo));
-                    //commandNombre.Parameters.Add(new OracleParameter("noDocumento", noCodigo));
+                    commandNombre.Parameters.Add(new OracleParameter("noCodigo", noCodigo));
                     object nombre = commandNombre.ExecuteScalar();
-
 
                     if (nombre != null)
                     {
                         txtNombre.Text = nombre.ToString();
-
+                        registroEncontrado = true;
                     }
                 }
-                using (OracleCommand commandPrese = new OracleCommand(queryprese, ConexionBD.Conex))
-                {
-                    commandPrese.Parameters.Add(new OracleParameter("COD_PRODUCTO", noCodigo));
-                    object prese = commandPrese.ExecuteScalar();
 
+                using (OracleCommand commandPrese = new OracleCommand(queryPrese, ConexionBD.Conex))
+                {
+                    commandPrese.Parameters.Add(new OracleParameter("noCodigo", noCodigo));
+                    object prese = commandPrese.ExecuteScalar();
 
                     if (prese != null)
                     {
                         txtpresentacion.Text = prese.ToString();
-
+                        registroEncontrado = true;
                     }
                 }
 
-                textCodigo.Enabled = false;
-                buttImprimir.Enabled = true;
-
+                if (!registroEncontrado)
+                {
+                    MessageBox.Show("No se encuentra el documento en la base de datos.");
+                    LimpiarControles();
+                }
+                else
+                {
+                    textCodigo.Enabled = false;
+                    buttImprimir.Enabled = true;
+                }
             }
             catch (Exception ex)
             {
@@ -287,6 +307,7 @@ namespace login
 
         }
 
+
         private void textCodigo_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             if (e.KeyCode == Keys.Tab)
@@ -351,6 +372,11 @@ namespace login
             UpdateButtonColors(buttImprimir);
             // Repetir para otros botones según sea necesario
 
+        }
+
+        private void LimpiarControles()
+        {
+            textCodigo.Enabled = true;
         }
 
         private void UpdateButtonColors(System.Windows.Forms.Button button)

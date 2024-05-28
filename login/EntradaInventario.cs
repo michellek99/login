@@ -543,7 +543,7 @@ namespace login
                             commandTipoDocumento.Parameters.Add(new OracleParameter("noDocumento", noDocumento));
 
                             string tipoDocumento = commandTipoDocumento.ExecuteScalar().ToString();
-                            if (tipoDocumento != "SI")
+                            if (tipoDocumento != "EI")
                             {
                                 MessageBox.Show("El tipo de documento no es válido.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 return;
