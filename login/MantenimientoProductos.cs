@@ -9,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WinForms = System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace login
 {
@@ -21,6 +23,17 @@ namespace login
             CargarMarcas();
             CargarCategorias();
 
+            // Configurar ComboBox para solo permitir la selección
+            comboMarca.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboCategoria.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            // Eventos para bloquear copiar, pegar, cortar
+            comboMarca.KeyDown += comboMarca_KeyDown;
+            comboMarca.KeyUp += comboMarca_KeyUp;
+            comboCategoria.KeyDown += comboCategoria_KeyDown;
+            comboCategoria.KeyUp += comboCategoria_KeyUp;
+
+
             button1.Enabled = true; //nuevo
             button4.Enabled = false; //modificar
             button3.Enabled = false; //eliminar
@@ -28,6 +41,7 @@ namespace login
             button4.EnabledChanged += Button_EnabledChanged;
             button3.EnabledChanged += Button_EnabledChanged;
 
+           // textPrecio.KeyPress += textPrecio_KeyPress;
 
             ApplyInitialButtonColors();
         }
@@ -82,31 +96,6 @@ namespace login
             }
         }
 
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Mantenimiento_de_Productos_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label9_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label10_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void buttBuscar_Click(object sender, EventArgs e)
         {
@@ -181,21 +170,68 @@ namespace login
 
         private void button1_Click(object sender, EventArgs e)
         {
+
             if (!ValidarTextBoxes())
             {
                 return;
             }
 
-            InsertarProducto(
-            textCodigo.Text.Trim(),
-            textReferencia.Text.Trim(),
-            textNombre.Text.Trim(),
-            textPresentacion.Text.Trim(),
-            comboMarca.SelectedValue.ToString(),
-            comboCategoria.SelectedValue.ToString(),
-            textPrecio.Text.Trim());
+            DialogResult result = MessageBox.Show("¿Seguro que desea insertar los registros indicados?", "Confirmar inserción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            LimpiarControles();        }
+            if (result == DialogResult.Yes)
+            {
+                string codigoProducto = textCodigo.Text.Trim();
+
+                if (CodigoDuplicado(codigoProducto))
+                {
+                    MessageBox.Show("El código del producto ya existe.");
+                    return;
+                }
+                else
+                {
+                    InsertarProducto(
+                    textCodigo.Text.Trim(),
+                    textReferencia.Text.Trim(),
+                    textNombre.Text.Trim(),
+                    textPresentacion.Text.Trim(),
+                    comboMarca.SelectedValue.ToString(),
+                    comboCategoria.SelectedValue.ToString(),
+                    textPrecio.Text.Trim());
+                }
+            }
+
+            LimpiarControles();
+        }
+
+        public bool CodigoDuplicado(string codigoProducto)
+        {
+            if (ConexionBD.Conex.State != ConnectionState.Open)
+            {
+                MessageBox.Show("La conexión a la base de datos no está abierta.");
+                return false;
+            }
+
+            try
+            {
+                string query = @"SELECT COUNT(1)
+                         FROM PRODUCTOS
+                         WHERE COD_PRODUCTO = :codigo";
+
+                using (OracleCommand command = new OracleCommand(query, ConexionBD.Conex))
+                {
+                    command.Parameters.Add(new OracleParameter("codigo", codigoProducto));
+
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+
+                    return count > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al verificar el código duplicado: {ex.Message}");
+                return false;
+            }
+        }
 
         private void InsertarProducto(string codProducto, string referencia, string nombre, string presentacion, string codMarca, string codCategoria, string precio)
         {
@@ -259,12 +295,20 @@ namespace login
                 return;
             }
 
-            // Obtiene los valores seleccionados en los ComboBox
-            var codMarca = comboMarca.SelectedValue;
-            var codCategoria = comboCategoria.SelectedValue;
+            // Muestra un mensaje de confirmación antes de proceder con la eliminación
+            var confirmResult = MessageBox.Show("¿Estás seguro de que deseas modificar este producto?",
+                                                 "Confirmar modificación",
+                                                 MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                // Obtiene los valores seleccionados en los ComboBox
+                var codMarca = comboMarca.SelectedValue;
+                var codCategoria = comboCategoria.SelectedValue;
 
-            // Llama al método ActualizarProducto con los valores recogidos
-            ActualizarProducto(codigoProducto, referencia, nombre, presentacion, precio, codMarca, codCategoria);
+                // Llama al método ActualizarProducto con los valores recogidos
+                ActualizarProducto(codigoProducto, referencia, nombre, presentacion, precio, codMarca, codCategoria);
+
+            }
 
             LimpiarControles();
         }
@@ -390,10 +434,12 @@ namespace login
             textCodigo.Enabled = true;
 
             comboMarca.SelectedIndex = -1; // Esto seleccionará "ningún ítem"
+            comboMarca.Text = string.Empty;
             comboCategoria.SelectedIndex = -1; // Esto seleccionará "ningún ítem"
+            comboCategoria.Text = string.Empty;
         }
 
-      
+
 
         private void Button_EnabledChanged(object sender, EventArgs e)
         {
@@ -442,9 +488,9 @@ namespace login
             foreach (Control control in this.Controls)
             {
                 // Verifica si el control es un TextBox
-                if (control is TextBox)
+                if (control is System.Windows.Forms.TextBox)
                 {
-                    TextBox textBox = control as TextBox;
+                    System.Windows.Forms.TextBox textBox = control as System.Windows.Forms.TextBox;
 
                     // Verifica si el TextBox está vacío
                     if (string.IsNullOrWhiteSpace(textBox.Text))
@@ -452,6 +498,12 @@ namespace login
                         MessageBox.Show("Debe llenar todos los campos");
                         return false;
                     }
+                }
+                if (string.IsNullOrEmpty(comboCategoria.Text) || comboCategoria.SelectedIndex == -1 ||
+                    string.IsNullOrEmpty(comboMarca.Text) || comboMarca.SelectedIndex == -1)
+                {
+                    MessageBox.Show("Debe seleccionar una opción en ambos campos.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
                 }
             }
             return true;
@@ -499,7 +551,7 @@ namespace login
         private void Numeros_KeyPress(object sender, KeyPressEventArgs e)
         {
             //no dejara pasar numeros del 32 al 47 y del 58 al 47 para que solo se queden los num. en el ASCII
-            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            if((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
             {
                 MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 e.Handled = true;
@@ -510,9 +562,9 @@ namespace login
 
         private void textReferencia_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96 || (e.KeyChar >= 123 && e.KeyChar <= 255)))
             {
-                MessageBox.Show("Ingrese solo números", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Ingrese solo números y letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 e.Handled = true;
                 return;
             }
@@ -520,9 +572,10 @@ namespace login
 
         private void textNombre_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if ((e.KeyChar >= 33 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
+            if ((e.KeyChar >= 33 && e.KeyChar <= 33) || (e.KeyChar >= 35 && e.KeyChar <= 46)
+                || (e.KeyChar >= 58 && e.KeyChar <= 64) || (e.KeyChar >= 91 && e.KeyChar <= 96) || (e.KeyChar >= 123 && e.KeyChar <= 255))
             {
-                MessageBox.Show("Ingrese solo letras", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Ingrese números,letras,carácter comillas y diagonal permitidos", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 e.Handled = true;
                 return;
             }
@@ -546,18 +599,47 @@ namespace login
                 e.Handled = true;
                 return;
             }
-           
+            if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
+            {
+                e.Handled = true; // Evita la acción de copiar, pegar o cortar
+            }
+
 
         }
 
         private void textPrecio_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if ((e.KeyChar >= 32 && e.KeyChar <= 45) || (e.KeyChar >= 47 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
+            if ((e.KeyChar >= 32 && e.KeyChar <= 47) || (e.KeyChar >= 58 && e.KeyChar <= 255))
             {
-                MessageBox.Show("Ingrese solo números y el signo . ", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Ingrese solo números y el punto decimal", "Alerta", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 e.Handled = true;
                 return;
             }
+            /*  // Permitir solo números, el punto y la tecla de retroceso
+             *  
+             *  ((e.KeyChar >= 32 && e.KeyChar <= 45) || (e.KeyChar >= 47 && e.KeyChar <= 47) ||
+                  (e.KeyChar >= 58 && e.KeyChar <= 255))
+             *  
+              if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.'))
+              {
+                  e.Handled = true;
+                  return;
+              }
+
+              // Si el punto decimal está presente, permitir solo hasta dos decimales
+              if (e.KeyChar == '.' && (sender as WinForms.TextBox).Text.IndexOf('.') > -1)
+              {
+                  e.Handled = true;
+                  return;
+              }
+
+              // Limitar a dos decimales
+              WinForms.TextBox textBox = sender as WinForms.TextBox;
+              string[] split = textBox.Text.Split('.');
+              if (split.Length > 1 && split[1].Length >= 2 && textBox.SelectionStart > textBox.Text.IndexOf('.'))
+              {
+                  e.Handled = true;
+              }*/
         }
 
         private void comboMarca_KeyPress(object sender, KeyPressEventArgs e)
@@ -568,16 +650,62 @@ namespace login
                 e.Handled = true;
                 return;
             }
+            if ((Control.ModifierKeys & Keys.Control) == Keys.Control)
+            {
+                e.Handled = true; // Evita la acción de copiar, pegar o cortar
+            }
 
         }
-        
+        //para bloquear el combo box
+        private void comboCategoria_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && (e.KeyCode == Keys.C || e.KeyCode == Keys.V || e.KeyCode == Keys.X))
+            {
+                e.SuppressKeyPress = true; // Evita la acción de copiar, pegar o cortar
+            }
+        }
+
+        private void comboCategoria_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Control && (e.KeyCode == Keys.C || e.KeyCode == Keys.V || e.KeyCode == Keys.X))
+            {
+                e.SuppressKeyPress = true; // Evita la acción de copiar, pegar o cortar
+            }
+        }
+
+        private void comboMarca_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && (e.KeyCode == Keys.C || e.KeyCode == Keys.V || e.KeyCode == Keys.X))
+            {
+                e.SuppressKeyPress = true; // Evita la acción de copiar, pegar o cortar
+            }
+        }
+
+        private void comboMarca_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Control && (e.KeyCode == Keys.C || e.KeyCode == Keys.V || e.KeyCode == Keys.X))
+            {
+                e.SuppressKeyPress = true; // Evita la acción de copiar, pegar o cortar
+            }
+        }
+
 
         //CODIGO QUE NO SE ESTA USANDO
-        private void textCodigo_TextChanged(object sender, EventArgs e){ }
+        private void textCodigo_TextChanged(object sender, EventArgs e) { }
 
         private void comboCategoria_SelectedIndexChanged(object sender, EventArgs e) { }
 
         private void Numeros_TextChanged(object sender, EventArgs e) { }
-        
+        private void label4_Click(object sender, EventArgs e) { }
+
+        private void label9_Click(object sender, EventArgs e) { }
+  
+        private void label10_Click(object sender, EventArgs e) { }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void Mantenimiento_de_Productos_Load(object sender, EventArgs e) { }
+
+
+
+
     }
 }

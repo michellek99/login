@@ -283,7 +283,7 @@
             // textCantidad
             // 
             textCantidad.Location = new Point(312, 169);
-            textCantidad.MaxLength = 25;
+            textCantidad.MaxLength = 5;
             textCantidad.Name = "textCantidad";
             textCantidad.ShortcutsEnabled = false;
             textCantidad.Size = new Size(66, 23);
@@ -351,11 +351,11 @@
             buttNuevo.FlatAppearance.BorderSize = 0;
             buttNuevo.FlatStyle = FlatStyle.Flat;
             buttNuevo.ForeColor = SystemColors.ControlLightLight;
-            buttNuevo.Location = new Point(334, 435);
+            buttNuevo.Location = new Point(206, 435);
             buttNuevo.Name = "buttNuevo";
             buttNuevo.Size = new Size(116, 30);
             buttNuevo.TabIndex = 89;
-            buttNuevo.Text = "Nuevo";
+            buttNuevo.Text = "Guardar";
             buttNuevo.UseVisualStyleBackColor = false;
             buttNuevo.Click += buttNuevo_Click_1;
             // 
@@ -399,7 +399,7 @@
             buttImprimir.FlatAppearance.MouseOverBackColor = Color.Navy;
             buttImprimir.FlatStyle = FlatStyle.Flat;
             buttImprimir.ForeColor = SystemColors.ControlLightLight;
-            buttImprimir.Location = new Point(195, 435);
+            buttImprimir.Location = new Point(335, 435);
             buttImprimir.Name = "buttImprimir";
             buttImprimir.Size = new Size(116, 30);
             buttImprimir.TabIndex = 86;

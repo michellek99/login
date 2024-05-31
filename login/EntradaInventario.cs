@@ -19,8 +19,8 @@ namespace login
 {
     public partial class EntradaInventario : Form
     {
-
         private ListaProductos listaProductosForm;
+        private ListaDocumentos listaDocumentosForm;
         public EntradaInventario()
         {
             InitializeComponent();
@@ -32,11 +32,13 @@ namespace login
             buttNuevo.Enabled = true;
             buttEliminar.Enabled = false;
             buttImprimir.Enabled = false;
+            buttBuscarDoc.Enabled = true;
             buttBuscar.EnabledChanged += Button_EnabledChanged;
             buttInsertar.EnabledChanged += Button_EnabledChanged;
             buttNuevo.EnabledChanged += Button_EnabledChanged;
             buttEliminar.EnabledChanged += Button_EnabledChanged;
             buttImprimir.EnabledChanged += Button_EnabledChanged;
+            buttBuscarDoc.EnabledChanged += Button_EnabledChanged;
 
             ApplyInitialButtonColors();
         }
@@ -68,19 +70,6 @@ namespace login
         {
             CargarDatos.CargarUltimoIDInventario(textNoDoc, ConexionBD.Conex);
         }
-
-        private void labelNombre_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox6_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-
-
         private void buttInsertar_Click(object sender, EventArgs e)
         {
             if (!ValidarCantidad())
@@ -184,6 +173,7 @@ namespace login
                             buttInsertar.Enabled = true;
                             textBuscarDoc.Enabled = false;
                             textCodigo.Enabled = false;
+                            buttBuscarDoc.Enabled = false;
                         }
                         else
                         {
@@ -340,6 +330,7 @@ namespace login
                     buttImprimir.Enabled = false;
                     textBuscarDoc.Enabled = true;
                     textCodigo.Enabled = true;
+                    buttBuscarDoc.Enabled = true;
                 }
             }
 
@@ -347,16 +338,17 @@ namespace login
             dataGridView1.Rows.Clear();
         }
 
-        private void textCodigo_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
-
         private void textCodigo_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
 
             if (e.KeyCode == Keys.Tab)
             {
+                // Cerrar el formulario ListaDocumentos si está abierto
+                if (listaDocumentosForm != null && !listaDocumentosForm.IsDisposed)
+                {
+                    listaDocumentosForm.Close();
+                }
+
                 // Crear una instancia del formulario ListaProductos con los parámetros necesarios
                 listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
 
@@ -371,6 +363,7 @@ namespace login
             }
         }
 
+
         private void ListaProductosForm_ProductoSeleccionado(string codigo)
         {
             // Establecer el valor del textCodigo con el código del producto seleccionado
@@ -382,10 +375,9 @@ namespace login
             textCodigo.Text = codigo;
         }
 
-        
-
         private void buttNuevo_Click(object sender, EventArgs e)
         {
+
             if (!string.IsNullOrWhiteSpace(textObservacion.Text) && dataGridView1.Rows.Count > 1)
             {
 
@@ -406,8 +398,7 @@ namespace login
                     CargarDatos.CargarUltimoIDInventario(textNoDoc, ConexionBD.Conex);
                     EstablecerFechaActual();
                 }
-
-
+                LimpiarControles();
             }
             else
             {
@@ -487,12 +478,6 @@ namespace login
                 MessageBox.Show($"Error al insertar datos en la base de datos: {ex.Message}");
             }
         }
-
-        private void textNoDoc_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-        {
-
-        }
-
         private void BuscarParaEliminar(string noDocumento)
         {
             // Verificar si el número de documento está vacío
@@ -503,7 +488,7 @@ namespace login
             }
 
             // Prepara la consulta SQL para buscar en la tabla DETALLE_INVENTARIO
-            string queryDetalle = "SELECT COD_PRODUCTO, DESCRIPCION, EGRESO, COSTO, SUBTOTAL FROM DETALLE_INVENTARIO WHERE NO_DOCUMENTO = :noDocumento";
+            string queryDetalle = "SELECT COD_PRODUCTO, DESCRIPCION, INGRESO, COSTO, SUBTOTAL FROM DETALLE_INVENTARIO WHERE NO_DOCUMENTO = :noDocumento";
 
             // Prepara la consulta SQL para obtener la observación de la tabla DETALLE_INVENTARIO
             string queryObservacion = "SELECT OBSERVACION FROM DETALLE_INVENTARIO WHERE NO_DOCUMENTO = :noDocumento AND ROWNUM = 1";
@@ -566,7 +551,7 @@ namespace login
                             object[] rowData = new object[5]; // 5 columnas
                             rowData[0] = readerDetalle["COD_PRODUCTO"];
                             rowData[1] = readerDetalle["DESCRIPCION"];
-                            rowData[2] = readerDetalle["EGRESO"];
+                            rowData[2] = readerDetalle["INGRESO"];
                             rowData[3] = readerDetalle["COSTO"];
                             rowData[4] = readerDetalle["SUBTOTAL"];
                             dataGridView1.Rows.Add(rowData);
@@ -744,6 +729,7 @@ namespace login
             UpdateButtonColors(buttBuscar);
             UpdateButtonColors(buttEliminar);
             UpdateButtonColors(buttImprimir);
+            UpdateButtonColors(buttBuscarDoc);
             // Repetir para otros botones según sea necesario
         }
 
@@ -848,32 +834,47 @@ namespace login
         {
             if (e.KeyCode == Keys.Tab)
             {
-                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
-                listaProductosForm = new ListaProductos("INVENTARIO", "NO_DOCUMENTO", "TIPO_DOCUMENTO");
+                // Determina el tipo de documento basado en el formulario actual
+                string tipoDocumento = "EI";
 
-                // Suscribirse al evento ProductoSeleccionado
-                listaProductosForm.ProductoSeleccionado += ListaProductosForm_Seleccionado;
+                // Cerrar el formulario ListaProductos si está abierto
+                if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+                {
+                    listaProductosForm.Close();
+                }
 
-                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                // Crear una instancia del formulario ListaDocumentos con el tipo de documento
+                listaDocumentosForm = new ListaDocumentos(tipoDocumento);
+
+                // Suscribirse al evento DocumentoSeleccionado
+                listaDocumentosForm.DocumentoSeleccionado += ListaDocumentosForm_Seleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaDocumentos
                 this.FormClosed += PrincipalForm_FormClosed;
 
-                // Mostrar el formulario ListaProductos
-                listaProductosForm.Show();
+                // Mostrar el formulario ListaDocumentos
+                listaDocumentosForm.Show();
             }
         }
 
-        private void ListaProductosForm_Seleccionado(string NoDoc)
+        private void ListaDocumentosForm_Seleccionado(string noDoc)
         {
-            SetTextNoDoc(NoDoc);
+            SetTextNoDoc(noDoc);
         }
 
-        public void SetTextNoDoc(string NoDoc)
+        public void SetTextNoDoc(string noDoc)
         {
-            textBuscarDoc.Text = NoDoc;
+            textBuscarDoc.Text = noDoc;
         }
 
         private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
         {
+            // Cerrar el formulario ListaDocumentos si está abierto
+            if (listaDocumentosForm != null && !listaDocumentosForm.IsDisposed)
+            {
+                listaDocumentosForm.Close();
+            }
+
             // Cerrar el formulario ListaProductos si está abierto
             if (listaProductosForm != null && !listaProductosForm.IsDisposed)
             {
@@ -994,5 +995,9 @@ namespace login
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
 
         private void textCosto_TextChanged(object sender, EventArgs e) { }
+        private void textCodigo_KeyDown(object sender, KeyEventArgs e) { }
+        private void textNoDoc_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) { }
+        private void labelNombre_Click(object sender, EventArgs e) { }
+        private void textBox6_TextChanged(object sender, EventArgs e) { }
     }
 }

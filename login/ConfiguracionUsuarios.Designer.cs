@@ -166,7 +166,7 @@
             button1.FlatAppearance.MouseOverBackColor = Color.Navy;
             button1.FlatStyle = FlatStyle.Flat;
             button1.ForeColor = SystemColors.ControlLightLight;
-            button1.Location = new Point(179, 378);
+            button1.Location = new Point(189, 378);
             button1.Name = "button1";
             button1.Size = new Size(116, 30);
             button1.TabIndex = 52;

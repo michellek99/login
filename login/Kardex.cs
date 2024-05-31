@@ -133,19 +133,18 @@ namespace login
         private void buttBuscar_Click(object sender, EventArgs e)
         {
             string noCodigo = textCodigo.Text;
-            CargarDatosProducto(noCodigo);
-            SumarCol();
 
+            // Verifica si el campo está vacío
             if (string.IsNullOrEmpty(noCodigo))
             {
                 MessageBox.Show("Por favor, ingresa un código de producto.");
                 LimpiarControles();
                 return;
-
             }
 
-
-
+            // Cargar datos del producto
+            CargarDatosProducto(noCodigo);
+            SumarCol();
         }
 
         private void CargarDatosProducto(string noCodigo)
@@ -212,22 +211,25 @@ namespace login
                     }
                 }
 
+                // Si no se encontró ningún registro, mostrar mensaje
                 if (!registroEncontrado)
                 {
                     MessageBox.Show("No se encuentra el documento en la base de datos.");
                     LimpiarControles();
+                    return; // Importante: salir del método para evitar que se deshabiliten los controles
                 }
-                else
-                {
-                    textCodigo.Enabled = false;
-                    buttImprimir.Enabled = true;
-                }
+
+                // Solo si se encontraron registros, deshabilitar el campo de texto y habilitar el botón
+                textCodigo.Enabled = false;
+                buttImprimir.Enabled = true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error al buscar en la base de datos: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
 
         private void label1_Click(object sender, EventArgs e)
         {

@@ -199,7 +199,7 @@ namespace login
             btnRExistencias.Padding = new Padding(31, 0, 0, 0);
             btnRExistencias.Size = new Size(234, 31);
             btnRExistencias.TabIndex = 1;
-            btnRExistencias.Text = "Reporte de Categorias";
+            btnRExistencias.Text = "Reporte de Usuarios";
             btnRExistencias.TextAlign = ContentAlignment.MiddleLeft;
             btnRExistencias.UseVisualStyleBackColor = true;
             btnRExistencias.Click += btnRExistencias_Click;

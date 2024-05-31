@@ -102,7 +102,7 @@
             buttNuevo.Name = "buttNuevo";
             buttNuevo.Size = new Size(116, 30);
             buttNuevo.TabIndex = 37;
-            buttNuevo.Text = "Nuevo";
+            buttNuevo.Text = "Guardar";
             buttNuevo.UseVisualStyleBackColor = false;
             buttNuevo.Click += buttNuevo_Click;
             // 

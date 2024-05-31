@@ -183,12 +183,14 @@
             comboCategoria.Size = new Size(280, 23);
             comboCategoria.TabIndex = 13;
             comboCategoria.SelectedIndexChanged += comboCategoria_SelectedIndexChanged;
+            comboCategoria.KeyDown += comboCategoria_KeyDown;
             comboCategoria.KeyPress += comboCategoria_KeyPress;
+            comboCategoria.KeyUp += comboCategoria_KeyUp;
             // 
             // textPrecio
             // 
             textPrecio.Location = new Point(565, 322);
-            textPrecio.MaxLength = 15;
+            textPrecio.MaxLength = 6;
             textPrecio.Name = "textPrecio";
             textPrecio.ShortcutsEnabled = false;
             textPrecio.Size = new Size(280, 23);
@@ -206,7 +208,7 @@
             button1.Name = "button1";
             button1.Size = new Size(116, 30);
             button1.TabIndex = 16;
-            button1.Text = "Nuevo";
+            button1.Text = "Guardar";
             button1.UseVisualStyleBackColor = false;
             button1.Click += button1_Click;
             // 
@@ -284,7 +286,9 @@
             comboMarca.Name = "comboMarca";
             comboMarca.Size = new Size(280, 23);
             comboMarca.TabIndex = 22;
+            comboMarca.KeyDown += comboMarca_KeyDown;
             comboMarca.KeyPress += comboMarca_KeyPress;
+            comboMarca.KeyUp += comboMarca_KeyUp;
             // 
             // buttBuscar
             // 

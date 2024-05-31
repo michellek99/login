@@ -49,7 +49,7 @@
             buttModificar.FlatAppearance.MouseOverBackColor = Color.Navy;
             buttModificar.FlatStyle = FlatStyle.Flat;
             buttModificar.ForeColor = SystemColors.ControlLightLight;
-            buttModificar.Location = new Point(363, 464);
+            buttModificar.Location = new Point(377, 422);
             buttModificar.Name = "buttModificar";
             buttModificar.Size = new Size(116, 30);
             buttModificar.TabIndex = 52;
@@ -65,7 +65,7 @@
             buttEliminar.FlatAppearance.MouseOverBackColor = Color.DarkRed;
             buttEliminar.FlatStyle = FlatStyle.Flat;
             buttEliminar.ForeColor = SystemColors.ControlLightLight;
-            buttEliminar.Location = new Point(635, 464);
+            buttEliminar.Location = new Point(649, 422);
             buttEliminar.Name = "buttEliminar";
             buttEliminar.Size = new Size(116, 30);
             buttEliminar.TabIndex = 51;
@@ -81,7 +81,7 @@
             buttGuardar.FlatAppearance.MouseOverBackColor = Color.Navy;
             buttGuardar.FlatStyle = FlatStyle.Flat;
             buttGuardar.ForeColor = SystemColors.ControlLightLight;
-            buttGuardar.Location = new Point(499, 464);
+            buttGuardar.Location = new Point(513, 422);
             buttGuardar.Name = "buttGuardar";
             buttGuardar.Size = new Size(116, 30);
             buttGuardar.TabIndex = 50;
@@ -97,11 +97,11 @@
             buttNuevo.FlatAppearance.MouseOverBackColor = Color.Navy;
             buttNuevo.FlatStyle = FlatStyle.Flat;
             buttNuevo.ForeColor = SystemColors.ControlLightLight;
-            buttNuevo.Location = new Point(224, 464);
+            buttNuevo.Location = new Point(238, 422);
             buttNuevo.Name = "buttNuevo";
             buttNuevo.Size = new Size(116, 30);
             buttNuevo.TabIndex = 49;
-            buttNuevo.Text = "Nuevo";
+            buttNuevo.Text = "Guardar";
             buttNuevo.UseVisualStyleBackColor = false;
             buttNuevo.Click += buttNuevo_Click;
             // 

@@ -91,11 +91,6 @@ namespace login
 
         }
 
-        private void buttImprimir_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void buttImprimir_Click_1(object sender, EventArgs e)
         {
             // Crear un cuadro de diálogo para guardar el archivo PDF
@@ -169,11 +164,6 @@ namespace login
                     MessageBox.Show("Error al generar el PDF: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-        }
-
-        private void txtTotal_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void buttImprimir_Click_2(object sender, EventArgs e)
@@ -250,16 +240,6 @@ namespace login
             }
         }
 
-        private void vScrollBar1_Scroll(object sender, ScrollEventArgs e)
-        {
-
-        }
-
-        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
         private void Button_EnabledChanged(object sender, EventArgs e)
         {
             System.Windows.Forms.Button button = sender as System.Windows.Forms.Button;
@@ -300,5 +280,10 @@ namespace login
                 button.ForeColor = Color.White;
             }
         }
+        //CODIGO QUE NO USAMOS
+        private void buttImprimir_Click(object sender, EventArgs e) { }
+        private void vScrollBar1_Scroll(object sender, ScrollEventArgs e) { }
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void txtTotal_TextChanged(object sender, EventArgs e){  }
     }
 }

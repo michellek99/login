@@ -38,7 +38,6 @@
             label1 = new Label();
             label2 = new Label();
             btnlogin = new Button();
-            linkpass = new LinkLabel();
             btncerrar = new PictureBox();
             btnminimizar = new PictureBox();
             btnmaximizar = new PictureBox();
@@ -157,19 +156,6 @@
             btnlogin.UseVisualStyleBackColor = false;
             btnlogin.Click += btnlogin_Click;
             // 
-            // linkpass
-            // 
-            linkpass.ActiveLinkColor = Color.RoyalBlue;
-            linkpass.AutoSize = true;
-            linkpass.Font = new Font("Century Gothic", 7.8F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            linkpass.LinkColor = Color.Gray;
-            linkpass.Location = new Point(409, 294);
-            linkpass.Name = "linkpass";
-            linkpass.Size = new Size(168, 16);
-            linkpass.TabIndex = 0;
-            linkpass.TabStop = true;
-            linkpass.Text = "¿Ha olvidado la contraseña?";
-            // 
             // btncerrar
             // 
             btncerrar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -241,7 +227,6 @@
             Controls.Add(btnmaximizar);
             Controls.Add(btnminimizar);
             Controls.Add(btncerrar);
-            Controls.Add(linkpass);
             Controls.Add(btnlogin);
             Controls.Add(label1);
             Controls.Add(label2);
@@ -278,7 +263,6 @@
         private Label label1;
         private Label label2;
         private Button btnlogin;
-        private LinkLabel linkpass;
         private PictureBox btncerrar;
         private PictureBox btnminimizar;
         private PictureBox pictureBox3;

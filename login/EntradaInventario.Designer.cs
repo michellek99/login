@@ -72,11 +72,11 @@
             buttNuevo.FlatAppearance.BorderSize = 0;
             buttNuevo.FlatStyle = FlatStyle.Flat;
             buttNuevo.ForeColor = SystemColors.ControlLightLight;
-            buttNuevo.Location = new Point(366, 464);
+            buttNuevo.Location = new Point(235, 464);
             buttNuevo.Name = "buttNuevo";
             buttNuevo.Size = new Size(116, 30);
             buttNuevo.TabIndex = 55;
-            buttNuevo.Text = "Nuevo";
+            buttNuevo.Text = "Guardar";
             buttNuevo.UseVisualStyleBackColor = false;
             buttNuevo.Click += buttNuevo_Click;
             // 
@@ -120,7 +120,7 @@
             buttImprimir.FlatAppearance.MouseOverBackColor = Color.Navy;
             buttImprimir.FlatStyle = FlatStyle.Flat;
             buttImprimir.ForeColor = SystemColors.ControlLightLight;
-            buttImprimir.Location = new Point(227, 464);
+            buttImprimir.Location = new Point(368, 464);
             buttImprimir.Name = "buttImprimir";
             buttImprimir.Size = new Size(116, 30);
             buttImprimir.TabIndex = 50;
@@ -242,7 +242,7 @@
             // textCantidad
             // 
             textCantidad.Location = new Point(344, 198);
-            textCantidad.MaxLength = 10;
+            textCantidad.MaxLength = 5;
             textCantidad.Name = "textCantidad";
             textCantidad.ShortcutsEnabled = false;
             textCantidad.Size = new Size(66, 23);

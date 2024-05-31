@@ -6,9 +6,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace login
 {
@@ -94,13 +96,56 @@ namespace login
                 return;
             }
 
-            string codigoMarca = textCodigo.Text;
-            string nombreMarca = textNombre.Text;
+            DialogResult result = MessageBox.Show("¿Seguro que desea insertar los registros indicados?", "Confirmar inserción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            // Llama al método para insertar la marca
-            InsertarMarca(codigoMarca, nombreMarca);
+            if (result == DialogResult.Yes)
+            {
+                string codigoMarca = textCodigo.Text;
+                string nombreMarca = textNombre.Text;
+
+                if (CodigoDuplicado(codigoMarca))
+                {
+                    MessageBox.Show("El código de marca ya existe.");
+                    return;
+                }
+                else
+                {
+                    // Llama al método para insertar la marca
+                    InsertarMarca(codigoMarca, nombreMarca);
+                }
+            }
 
             LimpiarCampos();
+        }
+
+        public bool CodigoDuplicado(string codigoProducto)
+        {
+            if (ConexionBD.Conex.State != ConnectionState.Open)
+            {
+                MessageBox.Show("La conexión a la base de datos no está abierta.");
+                return false;
+            }
+
+            try
+            {
+                string query = @"SELECT COUNT(1)
+                         FROM MARCA
+                         WHERE COD_MARCA = :codigo";
+
+                using (OracleCommand command = new OracleCommand(query, ConexionBD.Conex))
+                {
+                    command.Parameters.Add(new OracleParameter("codigo", codigoProducto));
+
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+
+                    return count > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al verificar el código duplicado: {ex.Message}");
+                return false;
+            }
         }
 
         private void InsertarMarca(string codigoMarca, string nombreMarca)
@@ -151,8 +196,22 @@ namespace login
             string codigoMarca = textCodigo.Text;
             string nombreNuevo = textNombre.Text;
 
-            // Llama al método para actualizar la marca
-            ActualizarMarca(codigoMarca, nombreNuevo);
+
+            if (string.IsNullOrEmpty(codigoMarca) || string.IsNullOrEmpty(nombreNuevo))
+            {
+                MessageBox.Show("Por favor, asegúrate de que todos los campos estén correctamente llenados antes de actualizar.");
+                return;
+            }
+
+            // Muestra un mensaje de confirmación antes de proceder con la eliminación
+            var confirmResult = MessageBox.Show("¿Estás seguro de que deseas modificar esta marca?",
+                                                 "Confirmar modificación",
+                                                 MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                // Llama al método para actualizar la marca
+                ActualizarMarca(codigoMarca, nombreNuevo);
+            }
 
             LimpiarCampos();
         }
@@ -208,9 +267,9 @@ namespace login
             {
                 // Llama al método para eliminar la marca
                 EliminarMarca(codigoMarca);
-
-                LimpiarCampos();
             }
+
+            LimpiarCampos();
 
         }
 
@@ -319,9 +378,9 @@ namespace login
             foreach (Control control in this.Controls)
             {
                 // Verifica si el control es un TextBox
-                if (control is TextBox)
+                if (control is System.Windows.Forms.TextBox)
                 {
-                    TextBox textBox = control as TextBox;
+                    System.Windows.Forms.TextBox textBox = control as System.Windows.Forms.TextBox;
 
                     // Verifica si el TextBox está vacío
                     if (string.IsNullOrWhiteSpace(textBox.Text))

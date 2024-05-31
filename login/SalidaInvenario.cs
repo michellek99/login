@@ -16,6 +16,7 @@ namespace login
     public partial class SalidaInvenario : Form
     {
         private ListaProductos listaProductosForm;
+        private ListaDocumentos listaDocumentosForm;
         public SalidaInvenario()
         {
             InitializeComponent();
@@ -320,10 +321,6 @@ namespace login
             dataGridView1.Rows.Clear();
         }
 
-        public void SetTextCodigo(string codigo)
-        {
-            textCodigo.Text = codigo;
-        }
         public void InsertarDatos()
         {
             if (ConexionBD.Conex.State != ConnectionState.Open)
@@ -692,6 +689,7 @@ namespace login
                     CargarDatos.CargarUltimoIDInventario(textNoDoc, ConexionBD.Conex);
                     EstablecerFechaActual();
                 }
+                LimpiarControles();
             }
             else
             {
@@ -775,6 +773,12 @@ namespace login
         {
             if (e.KeyCode == Keys.Tab)
             {
+                // Cerrar el formulario ListaDocumentos si está abierto
+                if (listaDocumentosForm != null && !listaDocumentosForm.IsDisposed)
+                {
+                    listaDocumentosForm.Close();
+                }
+
                 // Crear una instancia del formulario ListaProductos con los parámetros necesarios
                 listaProductosForm = new ListaProductos("PRODUCTOS", "COD_PRODUCTO", "NOMBRE");
 
@@ -794,6 +798,11 @@ namespace login
         {
             // Establecer el valor del textCodigo con el código del producto seleccionado
             SetTextCodigo(codigo);
+        }
+
+        public void SetTextCodigo(string codigo)
+        {
+            textCodigo.Text = codigo;
         }
 
         private void Button_EnabledChanged(object sender, EventArgs e)
@@ -923,32 +932,53 @@ namespace login
         {
             if (e.KeyCode == Keys.Tab)
             {
-                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
-                listaProductosForm = new ListaProductos("INVENTARIO", "NO_DOCUMENTO", "TIPO_DOCUMENTO");
+                // Determina el tipo de documento basado en el formulario actual
+                string tipoDocumento = "SI";
 
-                // Suscribirse al evento ProductoSeleccionado
-                listaProductosForm.ProductoSeleccionado += ListaProductosForm_Seleccionado;
+                // Cerrar el formulario ListaProductos si está abierto
+                if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+                {
+                    listaProductosForm.Close();
+                }
 
-                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaProductos
+                // Crear una instancia del formulario ListaDocumentos con el tipo de documento
+                listaDocumentosForm = new ListaDocumentos(tipoDocumento);
+
+                // Suscribirse al evento DocumentoSeleccionado
+                listaDocumentosForm.DocumentoSeleccionado += ListaDocumentosForm_Seleccionado;
+
+                // Suscribirse al evento FormClosed del formulario principal para cerrar ListaDocumentos
                 this.FormClosed += PrincipalForm_FormClosed;
 
-
-                // Mostrar el formulario ListaProductos
-                listaProductosForm.Show();
+                // Mostrar el formulario ListaDocumentos
+                listaDocumentosForm.Show();
             }
         }
 
-        private void ListaProductosForm_Seleccionado(string NoDoc)
+        private void ListaDocumentosForm_Seleccionado(string noDoc)
         {
-            SetTextNoDoc(NoDoc);
+            SetTextNoDoc(noDoc);
         }
 
-        public void SetTextNoDoc(string NoDoc)
+        public void SetTextNoDoc(string noDoc)
         {
-            textUsuario.Text = NoDoc;
+            textUsuario.Text = noDoc;
         }
 
+        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // Cerrar el formulario ListaDocumentos si está abierto
+            if (listaDocumentosForm != null && !listaDocumentosForm.IsDisposed)
+            {
+                listaDocumentosForm.Close();
+            }
 
+            // Cerrar el formulario ListaProductos si está abierto
+            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
+            {
+                listaProductosForm.Close();
+            }
+        }
 
         //PARA LOS PARAMETROS DE SEGURIDAD DE LETRAS Y NUMEROS
         //btn codigo
@@ -1061,15 +1091,6 @@ namespace login
         private void textDescripcion_TextChanged(object sender, EventArgs e)
         {
             //por equivocación abri este código lo elimine y lo volvi a regresar pero medio error
-        }
-
-        private void PrincipalForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            // Cerrar el formulario ListaProductos si está abierto
-            if (listaProductosForm != null && !listaProductosForm.IsDisposed)
-            {
-                listaProductosForm.Close();
-            }
         }
 
         private void textNoDoc_TextChanged(object sender, EventArgs e)

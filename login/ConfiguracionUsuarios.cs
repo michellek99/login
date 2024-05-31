@@ -29,33 +29,29 @@ namespace login
             ApplyInitialButtonColors();
         }
         //Encriptacion encriptacion = new Encriptacion();
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label8_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        
         private void button1_Click(object sender, EventArgs e)
         {
             if (!ValidarTextBoxes())
             {
                 return;
             }
-            InsertarUsuario(
-            EMP_CODIGO.Text.Trim(),
-            Nombres.Text.Trim(),
-            Apellidos.Text.Trim(),
-            Direccion.Text.Trim(),
-            No_Identificacion.Text.Trim(),
-            //Tipo_Usuario.SelectedText,
-            // Contrasena.Text.Trim(),
-            //Genero.SelectedText);
 
-            Contrasena.Text = Convert.ToBase64String(Encoding.UTF8.GetBytes(Contrasena.Text)));
+            DialogResult result = MessageBox.Show("¿Seguro que desea insertar los registros indicados?", "Confirmar inserción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                InsertarUsuario(
+                EMP_CODIGO.Text.Trim(),
+                Nombres.Text.Trim(),
+                Apellidos.Text.Trim(),
+                Direccion.Text.Trim(),
+                No_Identificacion.Text.Trim(),
+
+                Contrasena.Text = Convert.ToBase64String(Encoding.UTF8.GetBytes(Contrasena.Text)));
+            }
+
+            LimpiarControles();
 
         }
         private bool ValidarTextBoxes()
@@ -148,21 +144,21 @@ namespace login
 
             if (string.IsNullOrEmpty(codigo))
             {
-                MessageBox.Show("Por favor, ingresa el código del producto que deseas eliminar.");
+                MessageBox.Show("Por favor, ingresa el código del Usuario que deseas eliminar.");
                 return;
             }
 
             // Muestra un mensaje de confirmación antes de proceder con la eliminación
-            var confirmResult = MessageBox.Show("¿Estás seguro de que deseas eliminar este producto?",
+            var confirmResult = MessageBox.Show("¿Estás seguro de que deseas eliminar este usuario?",
                                                  "Confirmar eliminación",
                                                  MessageBoxButtons.YesNo);
             if (confirmResult == DialogResult.Yes)
             {
-                // Si el usuario confirma, llama al método EliminarProducto
+                // Si el usuario confirma, llama al método Eliminar usuario
                 EliminarUsuario(codigo);
             }
 
-           ;
+            LimpiarControles();
         }
         private void EliminarUsuario(string EMP_CODIGO)
         {
@@ -200,11 +196,6 @@ namespace login
             }
         }
 
-        private void EMP_CODIGO_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void button4_Click(object sender, EventArgs e)
         {
             string codigoUsuario = EMP_CODIGO.Text.Trim();
@@ -224,7 +215,7 @@ namespace login
             // Verificar si el código de usuario está vacío
             if (string.IsNullOrWhiteSpace(codigoUsuario))
             {
-                MessageBox.Show("Por favor, ingrese el código de empleado.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Por favor, ingrese el código del empleado.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -277,18 +268,28 @@ namespace login
 
         private void button3_Click(object sender, EventArgs e)
         {
+            if (!ValidarTextBoxes())
+            {
+                return;
+            }
 
-            ActualizarUsuario(
-            EMP_CODIGO.Text.Trim(),
-            Nombres.Text.Trim(),
-            Apellidos.Text.Trim(),
-            Direccion.Text.Trim(),
-            No_Identificacion.Text.Trim(),
-            //Tipo_Usuario.SelectedText,
-            //Contrasena.Text.Trim());
-            //Genero.SelectedText);
-            Contrasena.Text = Convert.ToBase64String(Encoding.UTF8.GetBytes(Contrasena.Text)));
+            // Muestra un mensaje de confirmación antes de proceder con la eliminación
+            var confirmResult = MessageBox.Show("¿Estás seguro de que deseas eliminar este usuario?",
+                                                 "Confirmar eliminación",
+                                                 MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                ActualizarUsuario(
+                EMP_CODIGO.Text.Trim(),
+                Nombres.Text.Trim(),
+                Apellidos.Text.Trim(),
+                Direccion.Text.Trim(),
+                No_Identificacion.Text.Trim(),
+                Contrasena.Text = Convert.ToBase64String(Encoding.UTF8.GetBytes(Contrasena.Text)));
+            }
 
+            LimpiarControles();
+            
         }
         private void ActualizarUsuario(string EMP_CODIGO, string Nombres, string Apellidos, string Direccion, string No_Identificacion, string Contrasena)
         {
@@ -349,11 +350,6 @@ namespace login
 
         }
 
-        private void ConfiguracionUsuarios_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void buttImprimir_Click(object sender, EventArgs e)
         {
             LimpiarControles();
@@ -374,25 +370,13 @@ namespace login
             button2.Enabled = false;
         }
 
-        private void Contrasena_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label10_Click(object sender, EventArgs e)
-        {
-
-        }
-
+       
         private void Tipo_Usuario_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void Numeros_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        
 
 
         private void Letras_TextChanged(object sender, EventArgs e)
@@ -424,7 +408,7 @@ namespace login
         {
             if (e.KeyCode == Keys.Tab)
             {
-                // Crear una instancia del formulario ListaProductos con los parámetros necesarios
+                // Crear una instancia del formulario Lista usuario con los parámetros necesarios
                 listaProductosForm = new ListaProductos("USUARIOS", "EMP_CODIGO", "NOMBRES");
 
                 // Suscribirse al evento ProductoSeleccionado
@@ -456,11 +440,6 @@ namespace login
             {
                 listaProductosForm.Close();
             }
-        }
-
-        private void EMP_CODIGO_KeyUp(object sender, KeyEventArgs e)
-        {
-
         }
 
         private void Button_EnabledChanged(object sender, EventArgs e)
@@ -536,5 +515,17 @@ namespace login
                 return;
             }
         }
+
+
+        //codigo que no se utiliza
+        private void EMP_CODIGO_KeyUp(object sender, KeyEventArgs e){  }
+        private void Contrasena_TextChanged(object sender, EventArgs e) { }
+        private void label10_Click(object sender, EventArgs e) { }
+        private void Numeros_TextChanged(object sender, EventArgs e) { }
+        private void ConfiguracionUsuarios_Load(object sender, EventArgs e) { }
+        private void EMP_CODIGO_TextChanged(object sender, EventArgs e) {  }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void label8_Click(object sender, EventArgs e) { }
+
     }
 }

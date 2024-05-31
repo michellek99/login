@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using login.Datos;
 using static iTextSharp.tool.xml.html.HTML;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Security.Cryptography.Xml;
 
 namespace login
 {
@@ -27,16 +29,6 @@ namespace login
             buttEliminar.EnabledChanged += Button_EnabledChanged;
 
             ApplyInitialButtonColors();
-        }
-
-        private void CategoriaProductos_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void buttBuscar_Click(object sender, EventArgs e)
@@ -98,13 +90,19 @@ namespace login
             {
                 return;
             }
+            // Muestra un mensaje de confirmación antes de proceder con la eliminación
+            var confirmResult = MessageBox.Show("¿Estás seguro de que deseas modificar esta categoría?",
+                                                 "Confirmar modificación",
+                                                 MessageBoxButtons.YesNo);
+            if (confirmResult == DialogResult.Yes)
+            {
+                string codigoCategoria = textCategoria.Text;
+                string nombreActualizado = textNombre.Text;
+                string descripcionActualizada = textDescripcion.Text;
 
-            string codigoCategoria = textCategoria.Text;
-            string nombreActualizado = textNombre.Text;
-            string descripcionActualizada = textDescripcion.Text;
-
-            // Llama al método para actualizar los datos
-            ActualizarCategoria(codigoCategoria, nombreActualizado, descripcionActualizada);
+                // Llama al método para actualizar los datos
+                ActualizarCategoria(codigoCategoria, nombreActualizado, descripcionActualizada);
+            }
 
             LimpiarCampos();
         }
@@ -156,15 +154,59 @@ namespace login
                 return;
             }
 
-            // Obtiene los valores ingresados
-            string codigoCategoria = textCategoria.Text;
-            string nombre = textNombre.Text;
-            string descripcion = textDescripcion.Text;
+            DialogResult result = MessageBox.Show("¿Seguro que desea insertar los registros indicados?", "Confirmar inserción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            // Llama al método para insertar los datos
-            InsertarCategoria(codigoCategoria, nombre, descripcion);
+            if (result == DialogResult.Yes)
+            {
+                // Obtiene los valores ingresados
+                string codigoCategoria = textCategoria.Text;
+                string nombre = textNombre.Text;
+                string descripcion = textDescripcion.Text;
+
+                if (CodigoDuplicado(codigoCategoria))
+                {
+                    MessageBox.Show("El código de categoría ya existe.");
+                    return;
+                }
+                else
+                {
+                    // Llama al método para insertar los datos
+                    InsertarCategoria(codigoCategoria, nombre, descripcion);
+                }
+
+            }
 
             LimpiarCampos();
+        }
+
+        public bool CodigoDuplicado(string codigoProducto)
+        {
+            if (ConexionBD.Conex.State != ConnectionState.Open)
+            {
+                MessageBox.Show("La conexión a la base de datos no está abierta.");
+                return false;
+            }
+
+            try
+            {
+                string query = @"SELECT COUNT(1)
+                         FROM CATEGORIA_PRODUCTOS
+                         WHERE COD_CATEGORIA = :codigo";
+
+                using (OracleCommand command = new OracleCommand(query, ConexionBD.Conex))
+                {
+                    command.Parameters.Add(new OracleParameter("codigo", codigoProducto));
+
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+
+                    return count > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al verificar el código duplicado: {ex.Message}");
+                return false;
+            }
         }
 
         private void InsertarCategoria(string codigoCategoria, string nombre, string descripcion)
@@ -219,9 +261,9 @@ namespace login
             {
                 // Llama al método para eliminar los datos
                 EliminarCategoria(codigoCategoria);
-
-                LimpiarCampos();
             }
+
+            LimpiarCampos();
         }
 
         private void EliminarCategoria(string codigoCategoria)
@@ -278,12 +320,6 @@ namespace login
             buttEliminar.Enabled = false;
             textCategoria.Enabled = true;
         }
-
-        private void labelCategoria_Click(object sender, EventArgs e)
-        {
-
-        }
-
 
         private void Button_EnabledChanged(object sender, EventArgs e)
         {
@@ -422,5 +458,9 @@ namespace login
             }
 
         }
+        //CODIGO QUE NO SE USA
+        private void labelCategoria_Click(object sender, EventArgs e) { }
+        private void CategoriaProductos_Load(object sender, EventArgs e) { }
+        private void label3_Click(object sender, EventArgs e) { }
     }
 }

@@ -40,3 +40,4 @@ C:\Users\Kevin Esquivel\source\repos\login\login\bin\Debug\net8.0-windows7.0\log
 C:\Users\Kevin Esquivel\source\repos\login\login\bin\Debug\net8.0-windows7.0\login.pdb
 C:\Users\Kevin Esquivel\source\repos\login\login\obj\Debug\net8.0-windows7.0\login.genruntimeconfig.cache
 C:\Users\Kevin Esquivel\source\repos\login\login\obj\Debug\net8.0-windows7.0\ref\login.dll
+C:\Users\Kevin Esquivel\source\repos\login\login\obj\Debug\net8.0-windows7.0\login.ListaDocumentos.resources
